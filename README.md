@@ -7,7 +7,7 @@ The client-side is written in Java and the server-side is written in Python.
 
 # Installation
 ## Windows
-You need to install [Java](https://www.java.com) to open jar files. If you don't have Java use the executable instead.
+You need to install [Java](https://www.java.com) to open jar files. If you don't have Java then use the executable instead.
 
 ### Java (.jar)
 #### File explorer:
