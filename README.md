@@ -15,7 +15,7 @@ You need to install [Java](https://www.java.com) to open jar files. If you don't
 * Right-click the downloaded file in file explorer, hover "Open with" and choose your Java program in the list.
 #### Command-line:
 * Download the file like above.
-* Open the `Command Prompt`, you can do `WIN + R` and type `cmd` in the input and press enter.
+* Open the `Command Prompt`, you can do `WIN + R` and type `cmd` in the input and press enter to open it.
 * In the CLI, type `java -jar <path to the jar>` and press enter.
 
 ### Executable (.exe)
