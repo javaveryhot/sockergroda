@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -53,7 +55,7 @@ public class CreateSecretWindow {
 		frmSockergrodaCreate.setBounds(100, 100, 450, 400);
 		frmSockergrodaCreate.setLocationRelativeTo(null);
 		frmSockergrodaCreate.setIconImage(Images.ICON_1024x1024.getImage());
-		frmSockergrodaCreate.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaCreate.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frmSockergrodaCreate.getContentPane().setLayout(null);
 		
 		JLabel lblFreeText = new JLabel("Free-text:");
@@ -91,6 +93,21 @@ public class CreateSecretWindow {
 			}
 		});
 		frmSockergrodaCreate.getContentPane().add(textArea);
+		
+		frmSockergrodaCreate.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				if(textArea.getText().length() > 0) {
+					int option = JOptionPane.showConfirmDialog(frmSockergrodaCreate, "You have started writing a free-text.\nDo you want to discard it?", "Warning", JOptionPane.YES_NO_OPTION);
+					if(option == 0) {
+						frmSockergrodaCreate.dispose();
+						System.exit(1);
+					}
+				} else {
+					frmSockergrodaCreate.dispose();
+					System.exit(1);
+				}
+			}
+		});
 		
 		passwordField = new JPasswordField();
 		passwordField.setBounds(10, 192, 164, 20);
@@ -158,11 +175,19 @@ public class CreateSecretWindow {
 		lblYears.setBounds(255, 280, 46, 14);
 		frmSockergrodaCreate.getContentPane().add(lblYears);
 		
-		JButton btnReturn = new JButton("Cancel");
+		JButton btnReturn = new JButton("Back");
 		btnReturn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaCreate.setVisible(false);
-				MainWindow.display();
+				if(textArea.getText().length() > 0) {
+					int option = JOptionPane.showConfirmDialog(frmSockergrodaCreate, "You have started writing a free-text.\nDo you want to discard it?", "Warning", JOptionPane.YES_NO_OPTION);
+					if(option == 0) {
+						frmSockergrodaCreate.setVisible(false);
+						MainWindow.display();
+					}
+				} else {
+					frmSockergrodaCreate.setVisible(false);
+					MainWindow.display();
+				}
 			}
 		});
 		btnReturn.setBounds(232, 324, 89, 23);

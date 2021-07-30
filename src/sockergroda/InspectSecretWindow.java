@@ -143,7 +143,7 @@ public class InspectSecretWindow {
 			}
 		});
 		
-		JButton btnCancel = new JButton("Cancel");
+		JButton btnCancel = new JButton("Back");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaInspect.setVisible(false);

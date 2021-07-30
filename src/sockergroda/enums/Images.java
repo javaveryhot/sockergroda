@@ -10,7 +10,8 @@ public enum Images {
 	ICON_32x32("sockergroda_32x32.png"),
 	ICON_16x16("sockergroda_16x16.png"),
 	VALID_ICON_16x16("valid_16x16.png"),
-	INVALID_ICON_16x16("invalid_16x16.png");
+	INVALID_ICON_16x16("invalid_16x16.png"),
+	AD_SAMPLE("ad_sample.png");
 	
 	Image image;
 	private Images(String imageLocation) {
