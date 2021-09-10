@@ -18,4 +18,4 @@ You need to install [Java](https://www.java.com) to open jar files. If you don't
 * In the CLI, type `java -jar <path to the jar>` and press enter.
 
 ### Executable (.exe)
-* Double-click the downloaded file in file explorer to execute it. You can also in many browsers just click the downloaded file once in the browser.
+* Double-click the downloaded file in file explorer to execute it. You can also in many browsers just click the downloaded file once in the browser. Note: Windows may block the application, select "More information" and choose the option to run the program anyway.
