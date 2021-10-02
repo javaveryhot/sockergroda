@@ -11,7 +11,9 @@ public enum Images {
 	ICON_16x16("sockergroda_16x16.png"),
 	VALID_ICON_16x16("valid_16x16.png"),
 	INVALID_ICON_16x16("invalid_16x16.png"),
-	AD_SAMPLE("ad_sample.png");
+	AD_SAMPLE("ad_sample.png"),
+	PLUS_16x16("plus_16x16.png"),
+	MAGN_GLASS_16x16("magn_glass_16x16.png");
 	
 	Image image;
 	private Images(String imageLocation) {

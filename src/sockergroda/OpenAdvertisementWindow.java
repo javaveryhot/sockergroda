@@ -51,7 +51,7 @@ public class OpenAdvertisementWindow {
 		openingAdvertisement = true;
 		this.url = url;
 		this.id = id;
-		this.waitSeconds = 5;
+		this.waitSeconds = 3;
 		initialize();
 	}
 

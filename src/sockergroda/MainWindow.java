@@ -55,29 +55,35 @@ public class MainWindow {
     this.frmSockergroda = new JFrame();
     this.frmSockergroda.setResizable(false);
     this.frmSockergroda.setTitle("Sockergroda " + Main.version);
-    this.frmSockergroda.setBounds(100, 100, 450, 300);
+    boolean adsRemoved = Main.hasRemovedAds();
+    this.frmSockergroda.setBounds(100, 100, 450, !adsRemoved ? 300 : 220);
     this.frmSockergroda.setLocationRelativeTo(null);
     this.frmSockergroda.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.frmSockergroda.getContentPane().setLayout((LayoutManager)null);
     this.frmSockergroda.setIconImage(Images.ICON_1024x1024.getImage());
-    this.frmSockergroda.setLayout(null);
-    JButton btnCreate = new JButton("Create");
+    this.frmSockergroda.getContentPane().setLayout(null);
+    JButton btnCreate = new JButton("CREATE");
+    btnCreate.setIcon(new ImageIcon(Images.PLUS_16x16.getImage()));
     btnCreate.setBounds(100, 111, 105, 24);
     btnCreate.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             MainWindow.this.frmSockergroda.setVisible(false);
             CreateSecretWindow.display();
           }
-        });
+    });
+    frmSockergroda.getContentPane().setLayout(null);
+    frmSockergroda.getContentPane().setLayout(null);
+    frmSockergroda.getContentPane().setLayout(null);
     this.frmSockergroda.getContentPane().add(btnCreate);
-    JButton btnInspect = new JButton("Inspect");
+    JButton btnInspect = new JButton("INSPECT");
+    btnInspect.setIcon(new ImageIcon(Images.MAGN_GLASS_16x16.getImage()));
     btnInspect.setBounds(216, 111, 105, 24);
     btnInspect.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             MainWindow.this.frmSockergroda.setVisible(false);
             InspectSecretWindow.display();
           }
-        });
+    });
     this.frmSockergroda.getContentPane().add(btnInspect);
     JLabel lblNewLabel = new JLabel("Sockergroda");
     lblNewLabel.setBounds(10, 0, 237, 47);
@@ -98,11 +104,12 @@ public class MainWindow {
     lblNewLabel_1_1.setFont(new Font("Tahoma", 0, 9));
     this.frmSockergroda.getContentPane().add(lblNewLabel_1_1);
     
-    JLabel lblNewLabel_2_1 = new JLabel("License");
-    lblNewLabel_2_1.setBounds(10, 155, 54, 25);
-    lblNewLabel_2_1.setForeground(SystemColor.desktop);
-    lblNewLabel_2_1.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 9));
-    lblNewLabel_2_1.addMouseListener(new MouseListener() {
+    JLabel licenseLabel = new JLabel("License");
+    licenseLabel.setBounds(10, 155, 54, 25);
+    licenseLabel.setForeground(SystemColor.desktop);
+    licenseLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 9));
+    licenseLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    licenseLabel.addMouseListener(new MouseListener() {
 		public void mouseReleased(MouseEvent e) {}
 		@Override
 		public void mousePressed(MouseEvent e) {
@@ -113,7 +120,7 @@ public class MainWindow {
 		public void mouseEntered(MouseEvent e) {}
 		public void mouseClicked(MouseEvent e) {}
 	});
-    frmSockergroda.getContentPane().add(lblNewLabel_2_1);
+    frmSockergroda.getContentPane().add(licenseLabel);
     
     JLabel lblNewLabel_3 = new JLabel(Main.version);
     lblNewLabel_3.setBounds(245, 27, 85, 14);
@@ -131,10 +138,10 @@ public class MainWindow {
     separator_1.setBackground(Color.GRAY);
     frmSockergroda.getContentPane().add(separator_1);
     
-    JLabel lblNewLabel_4 = new JLabel("ADVERTISEMENT");
-    lblNewLabel_4.setBounds(5, 191, 60, 14);
-    lblNewLabel_4.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 8));
-    frmSockergroda.getContentPane().add(lblNewLabel_4);
+    JLabel advertisementLabel = new JLabel("ADVERTISEMENT");
+    advertisementLabel.setBounds(5, 191, 60, 14);
+    advertisementLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 8));
+    frmSockergroda.getContentPane().add(advertisementLabel);
     
     advertisement = new JLabel();
     advertisement.setBounds(5, 208, 424, 48);
@@ -143,6 +150,15 @@ public class MainWindow {
 		public void mouseReleased(MouseEvent e) {}
 		@Override
 		public void mousePressed(MouseEvent e) {
+			if(e.getButton() == 3) {
+				advertisement.setIcon(null);
+				adData = null;
+				advertisement.setVisible(false);
+				loadAdvertisement();
+				advertisement.setVisible(true);
+				return;
+			}
+			
 			if(adData == null || OpenAdvertisementWindow.openingAdvertisement) {
 				return;
 			}
@@ -154,6 +170,24 @@ public class MainWindow {
 		public void mouseClicked(MouseEvent e) {}
 	});
     frmSockergroda.getContentPane().add(advertisement);
+    
+    JLabel removeAdvertisementsLabel = new JLabel("Remove Advertisements");
+    removeAdvertisementsLabel.setBounds(330, 186, 100, 25);
+    removeAdvertisementsLabel.setForeground(SystemColor.desktop);
+    removeAdvertisementsLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 9));
+    removeAdvertisementsLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    removeAdvertisementsLabel.addMouseListener(new MouseListener() {
+		public void mouseReleased(MouseEvent e) {}
+		@Override
+		public void mousePressed(MouseEvent e) {
+			frmSockergroda.setVisible(false);
+			RemoveAdvertisements.display();
+		}
+		public void mouseExited(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseClicked(MouseEvent e) {}
+	});
+    frmSockergroda.getContentPane().add(removeAdvertisementsLabel);
     
     final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     executorService.scheduleAtFixedRate(new Runnable() {

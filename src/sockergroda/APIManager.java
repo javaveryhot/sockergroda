@@ -158,4 +158,32 @@ public class APIManager {
 		    return new JSONObject(fullResponse.toString());
 		}
 	}
+	
+	public static boolean testRAKey(int key) throws IOException {
+		URL requestUrl = new URL("https://api.sockergrodaapi.repl.co/check_rakey");
+		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
+		connection.setRequestMethod("POST");
+		connection.setRequestProperty("Content-Type", "application/json; utf-8");
+		connection.setRequestProperty("Accept", "application/json");
+		connection.setDoOutput(true);
+		
+		JSONObject jsonInput = new JSONObject();
+		jsonInput.append("key", key);
+		String jsonInputString = jsonInput.toString();
+		
+		try(OutputStream outputStream = connection.getOutputStream()) {
+		    byte[] input = jsonInputString.getBytes("utf-8");
+		    outputStream.write(input, 0, input.length);
+		}
+		
+		try(BufferedReader bufferedReader = new BufferedReader(
+				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+		    StringBuilder fullResponse = new StringBuilder();
+		    String tempResponse = null;
+		    while((tempResponse = bufferedReader.readLine()) != null) {
+		    	fullResponse.append(tempResponse.trim());
+		    }
+		    return new JSONObject(fullResponse.toString()).getBoolean("valid");
+		}
+	}
 }
