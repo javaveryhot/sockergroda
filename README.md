@@ -1,5 +1,5 @@
 # Sockergroda
-A free tool that lets you share free-text that is encrypted into a key, which can be decrypted by the recipient with a password
+A free text sharing utility
 
 The client-side is written in Java and the server-side is written in Python.
 
