@@ -1,5 +1,5 @@
 # Sockergroda
-A free text sharing utility
+A free text sharing utility.
 
 The client-side is written in Java and the server-side is written in Python.
 
