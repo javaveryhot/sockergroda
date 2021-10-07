@@ -16,15 +16,14 @@ public class SecretCreatedWindow {
 
 	private JFrame frmSockergrodaSecret;
 	private JTextField txtSecretId;
-	private JTextField textField;
 	private boolean showingPassword;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void display(int secretId, String password, long expiration) {
+	public static void display(int secretId, String password, long expiration, int expirationType) {
 		try {
-			SecretCreatedWindow window = new SecretCreatedWindow(secretId, password, expiration);
+			SecretCreatedWindow window = new SecretCreatedWindow(secretId, password, expiration, expirationType);
 			window.frmSockergrodaSecret.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -34,15 +33,15 @@ public class SecretCreatedWindow {
 	/**
 	 * Create the application.
 	 */
-	public SecretCreatedWindow(int secretId, String password, long expiration) {
+	public SecretCreatedWindow(int secretId, String password, long expiration, int expirationType) {
 		this.showingPassword = true;
-		initialize(secretId, password, expiration);
+		initialize(secretId, password, expiration, expirationType);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize(int secretId, String password, long expiration) {
+	private void initialize(int secretId, String password, long expiration, int expirationType) {
 		frmSockergrodaSecret = new JFrame();
 		frmSockergrodaSecret.setTitle("Sockergroda - Secret Created");
 		frmSockergrodaSecret.setResizable(false);
@@ -77,28 +76,30 @@ public class SecretCreatedWindow {
 		txtSecretId.setSelectionStart(0);
 		txtSecretId.setSelectionEnd(txtSecretId.getText().length());
 		
-		JLabel lblNewLabel = new JLabel("Password:");
-		lblNewLabel.setBounds(25, 75, 95, 14);
-		frmSockergrodaSecret.getContentPane().add(lblNewLabel);
-		
-		textField = new JTextField();
-		textField.setText(password);
-		textField.setEditable(false);
-		textField.setColumns(10);
-		textField.setBounds(25, 89, 125, 20);
-		frmSockergrodaSecret.getContentPane().add(textField);
-		
-		JButton btnToggleShowPassword = new JButton();
-		btnToggleShowPassword.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				showingPassword = !showingPassword;
-				textField.setText(showingPassword ? password : password.replaceAll(".", "*"));
-				btnToggleShowPassword.setText(showingPassword ? "Hide" : "Show");
-			}
-		});
-		btnToggleShowPassword.doClick();
-		btnToggleShowPassword.setBounds(160, 88, 77, 23);
-		frmSockergrodaSecret.getContentPane().add(btnToggleShowPassword);
+		if(password != null) {
+			JLabel passwordLabel = new JLabel("Password:");
+			passwordLabel.setBounds(25, 75, 95, 14);
+			frmSockergrodaSecret.getContentPane().add(passwordLabel);
+			
+			JTextField textField = new JTextField();
+			textField.setText(password);
+			textField.setEditable(false);
+			textField.setColumns(10);
+			textField.setBounds(25, 89, 125, 20);
+			frmSockergrodaSecret.getContentPane().add(textField);
+			
+			JButton btnToggleShowPassword = new JButton();
+			btnToggleShowPassword.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					showingPassword = !showingPassword;
+					textField.setText(showingPassword ? password : password.replaceAll(".", "*"));
+					btnToggleShowPassword.setText(showingPassword ? "Hide" : "Show");
+				}
+			});
+			btnToggleShowPassword.doClick();
+			btnToggleShowPassword.setBounds(160, 88, 77, 23);
+			frmSockergrodaSecret.getContentPane().add(btnToggleShowPassword);
+		}
 		
 		JButton btnClose = new JButton("Close");
 		btnClose.addActionListener(new ActionListener() {

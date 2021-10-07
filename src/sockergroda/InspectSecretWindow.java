@@ -29,6 +29,8 @@ public class InspectSecretWindow {
 	private JTextField txtId;
 	private JPasswordField passwordField;
 	private JLabel validationIcon;
+	private JButton btnInspect;
+	private JLabel lblPasswordNote;
 	private int typeCount;
 	private String clipboard;
 
@@ -70,23 +72,30 @@ public class InspectSecretWindow {
 		frmSockergrodaInspect.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmSockergrodaInspect.getContentPane().setLayout(null);
 		
-		JLabel lblId = new JLabel("ID (formatted or raw):");
+		JLabel lblId = new JLabel("ID:");
+		lblId.setIcon(new ImageIcon(Images.ID_16x16.getImage()));
 		lblId.setBounds(10, 11, 174, 14);
 		frmSockergrodaInspect.getContentPane().add(lblId);
 		
 		txtId = new JTextField();
 		txtId.setBounds(10, 26, 120, 20);
 		txtId.addKeyListener(new KeyListener() {
-			public void keyTyped(KeyEvent e) {
+			public void keyTyped(KeyEvent e) {}
+			public void keyReleased(KeyEvent e) {
 				validationTimeout();
 			}
-			public void keyReleased(KeyEvent e) {}
-			public void keyPressed(KeyEvent e) {}
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == 10) {
+					// Pressed enter
+					passwordField.grabFocus();
+				}
+			}
 		});
 		frmSockergrodaInspect.getContentPane().add(txtId);
 		txtId.setColumns(10);
 		
 		JLabel lblPassword = new JLabel("Password:");
+		lblPassword.setIcon(new ImageIcon(Images.KEY_16x16.getImage()));
 		lblPassword.setBounds(10, 56, 174, 14);
 		frmSockergrodaInspect.getContentPane().add(lblPassword);
 		
@@ -94,7 +103,7 @@ public class InspectSecretWindow {
 		passwordField.setBounds(10, 71, 120, 20);
 		frmSockergrodaInspect.getContentPane().add(passwordField);
 		
-		JButton btnInspect = new JButton("Inspect");
+		btnInspect = new JButton("Inspect");
 		btnInspect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String rawSecretId = "";
@@ -153,9 +162,13 @@ public class InspectSecretWindow {
 		btnCancel.setBounds(231, 102, 89, 23);
 		frmSockergrodaInspect.getContentPane().add(btnCancel);
 		
-		this.validationIcon = new JLabel();
-		this.validationIcon.setBounds(140, 26, 180, 20);
-		frmSockergrodaInspect.getContentPane().add(this.validationIcon);
+		validationIcon = new JLabel();
+		validationIcon.setBounds(140, 26, 180, 20);
+		frmSockergrodaInspect.getContentPane().add(validationIcon);
+		
+		lblPasswordNote = new JLabel();
+		lblPasswordNote.setBounds(138, 74, 125, 14);
+		frmSockergrodaInspect.getContentPane().add(lblPasswordNote);
 		
 		if(this.clipboard.startsWith("<sg?") && this.clipboard.endsWith(">")) {
 			txtId.setText(clipboard);
@@ -164,7 +177,14 @@ public class InspectSecretWindow {
 	}
 	
 	private void updateIdValidation() {
+		if(txtId.getText().length() == 0) {
+			validationIcon.setIcon(null);
+			validationIcon.setText(null);
+			return;
+		}
+		
 		boolean validMode = false;
+		boolean passwordless = false;
 		String rawSecretId = "";
 		String secretId = txtId.getText();
 
@@ -179,6 +199,7 @@ public class InspectSecretWindow {
 			try {
 				JSONObject jsonResponse = APIManager.checkSecret(rawSecretIdInt);
 				validMode = jsonResponse.getBoolean("valid");
+				passwordless = jsonResponse.getBoolean("passwordless");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -186,8 +207,23 @@ public class InspectSecretWindow {
 		
 		this.validationIcon.setIcon(new ImageIcon(validMode ? Images.VALID_ICON_16x16.getImage() : Images.INVALID_ICON_16x16.getImage()));
 		this.validationIcon.setText((validMode ? "Valid" : "Invalid") + (this.clipboard.length() > 0 && secretId.equals(this.clipboard) ? " (from clipboard)" : ""));
-		if(validMode) {
+		if(validMode && !passwordless) {
+			// Secret exists and requires password
+			
 			this.passwordField.grabFocus();
+			this.passwordField.setEnabled(true);
+			this.lblPasswordNote.setText(null);
+		} else if(!validMode) {
+			// Secret does not exist
+			
+			this.passwordField.setEnabled(true);
+			this.lblPasswordNote.setText(null);
+		} else if(passwordless) {
+			// Secret exists and does not require password
+			
+			this.btnInspect.grabFocus();
+			this.passwordField.setEnabled(false);
+			this.lblPasswordNote.setText("No password for secret");
 		}
 	}
 	

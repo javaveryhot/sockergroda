@@ -1,26 +1,33 @@
 package sockergroda;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.awt.Desktop;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import utils.VersionConverter;
 
 public class Main {
-	public static int versionInt = 103;
-	public static String version = VersionConverter.intToString(versionInt); // Only for visuals! Do not use for detection
+	public static int versionInt = 104;
+	public static String versionName = VersionConverter.intToString(versionInt); // Only for visuals! Do not use for detection
+	public static String version = VersionConverter.intToString(versionInt, false);
 	public static String downloadUrl = "https://github.com/javaveryhot/sockergroda/releases";
+	public static String helpUrl = "https://github.com/javaveryhot/sockergroda";
+	public static String reportIssueUrl = "https://github.com/javaveryhot/sockergroda/issues";
 	
 	public static void main(String[] args) {
-		createSockergrodaDataFile();
+		StorageManager.createStorageFile();
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 		
 		MainWindow.display();
 		if(!hasInternetConnection()) {
@@ -41,50 +48,23 @@ public class Main {
 		}
 	}
 	
-	private static URL getSockergrodaDataURL() {
-		try {
-			return new URL("file:///" + System.getProperty("user.home") + "\\sockergrodadata.txt");
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	private static void createSockergrodaDataFile() {
-		File dataFile = new File(getSockergrodaDataURL().getPath());
-		try {
-			dataFile.createNewFile();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public static boolean hasRemovedAds() {
-	    String content = null;
-	    
-    	try {
-    		InputStream inputStream = getSockergrodaDataURL().openStream();
-
-    		if(inputStream != null) {
-    			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-    			content = reader.readLine();
-    		}
-
-    	    inputStream.close();
-	    } catch(IOException e) {
-	    	e.printStackTrace();
-	    }
-    	
-    	return content != null ? content.equals("1") : false;
+		return StorageManager.getBoolean("remove_ads");
 	}
 	
 	public static void removeAds() {
-	    try {
-	    	BufferedWriter writer = new BufferedWriter(new FileWriter(getSockergrodaDataURL().getPath()));
-	    	writer.write("1");
-	    	writer.close();
-	    } catch(IOException e) {
-	    	e.printStackTrace();
-	    }
+		StorageManager.setAttribute("remove_ads", true);
+	}
+	
+	public static void openURL(String url) {
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+			try {
+				desktop.browse(new URI(url));
+			} catch (IOException | URISyntaxException e1) {
+				e1.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Could not open the web page.", "Browser Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 }

@@ -10,7 +10,7 @@ import java.net.URL;
 import org.json.JSONObject;
 
 public class APIManager {
-	public static int createSecret(String freeText, String password, long expiration) throws IOException {
+	public static int createSecret(String freeText, String password, long expiration, int expirationType) throws IOException {
 		URL requestUrl = new URL("https://api.sockergrodaapi.repl.co/create_secret");
 		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
 		connection.setRequestMethod("POST");
@@ -22,6 +22,7 @@ public class APIManager {
 		jsonInput.append("freetext", freeText);
 		jsonInput.append("password", password);
 		jsonInput.append("expire", expiration);
+		jsonInput.append("expire_type", expirationType);
 		String jsonInputString = jsonInput.toString();
 		
 		try(OutputStream outputStream = connection.getOutputStream()) {

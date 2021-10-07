@@ -53,7 +53,7 @@ public class License {
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaUser.setVisible(false);
-				MainWindow.display();
+				AboutWindow.display();
 			}
 		});
 	    frmSockergrodaUser.getContentPane().add(btnBack);

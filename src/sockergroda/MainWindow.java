@@ -1,20 +1,15 @@
 package sockergroda;
 
-import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.LayoutManager;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,10 +18,15 @@ import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 import org.json.JSONObject;
 
@@ -37,6 +37,7 @@ public class MainWindow {
   private JFrame frmSockergroda;
   private JSONObject adData;
   private JLabel advertisement;
+  private JLabel lblStatus;
   
   public static void display() {
     try {
@@ -54,17 +55,18 @@ public class MainWindow {
   private void initialize() {
     this.frmSockergroda = new JFrame();
     this.frmSockergroda.setResizable(false);
-    this.frmSockergroda.setTitle("Sockergroda " + Main.version);
+    this.frmSockergroda.setTitle("Sockergroda " + Main.versionName);
     boolean adsRemoved = Main.hasRemovedAds();
-    this.frmSockergroda.setBounds(100, 100, 450, !adsRemoved ? 300 : 220);
+    this.frmSockergroda.setBounds(100, 100, 450, !adsRemoved ? 280 : 195);
     this.frmSockergroda.setLocationRelativeTo(null);
     this.frmSockergroda.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.frmSockergroda.getContentPane().setLayout((LayoutManager)null);
     this.frmSockergroda.setIconImage(Images.ICON_1024x1024.getImage());
-    this.frmSockergroda.getContentPane().setLayout(null);
+
     JButton btnCreate = new JButton("CREATE");
-    btnCreate.setIcon(new ImageIcon(Images.PLUS_16x16.getImage()));
-    btnCreate.setBounds(100, 111, 105, 24);
+    btnCreate.setToolTipText("Create a secret to be inspected by other people");
+    btnCreate.setIcon(new ImageIcon(Images.CREATE_16x16.getImage()));
+    btnCreate.setBounds(100, 76, 105, 24);
     btnCreate.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             MainWindow.this.frmSockergroda.setVisible(false);
@@ -74,10 +76,13 @@ public class MainWindow {
     frmSockergroda.getContentPane().setLayout(null);
     frmSockergroda.getContentPane().setLayout(null);
     frmSockergroda.getContentPane().setLayout(null);
+    frmSockergroda.getContentPane().setLayout(null);
+    frmSockergroda.getContentPane().setLayout(null);
     this.frmSockergroda.getContentPane().add(btnCreate);
     JButton btnInspect = new JButton("INSPECT");
-    btnInspect.setIcon(new ImageIcon(Images.MAGN_GLASS_16x16.getImage()));
-    btnInspect.setBounds(216, 111, 105, 24);
+    btnInspect.setToolTipText("Inspect a key that you have and see what it says");
+    btnInspect.setIcon(new ImageIcon(Images.INSPECT_16x16.getImage()));
+    btnInspect.setBounds(216, 76, 105, 24);
     btnInspect.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             MainWindow.this.frmSockergroda.setVisible(false);
@@ -85,80 +90,34 @@ public class MainWindow {
           }
     });
     this.frmSockergroda.getContentPane().add(btnInspect);
-    JLabel lblNewLabel = new JLabel("Sockergroda");
-    lblNewLabel.setBounds(10, 0, 237, 47);
-    lblNewLabel.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
-    lblNewLabel.setFont(new Font("Segoe UI Historic", Font.PLAIN, 35));
-    this.frmSockergroda.getContentPane().add(lblNewLabel);
-    JSeparator separator = new JSeparator();
-    separator.setBounds(0, 47, 444, 7);
-    separator.setForeground(Color.LIGHT_GRAY);
-    separator.setBackground(Color.GRAY);
-    this.frmSockergroda.getContentPane().add(separator);
-    JLabel lblNewLabel_1 = new JLabel("This is a free tool that lets you share free-text that is encrypted into a key,");
-    lblNewLabel_1.setBounds(31, 61, 384, 14);
-    lblNewLabel_1.setFont(new Font("Tahoma", 0, 9));
-    this.frmSockergroda.getContentPane().add(lblNewLabel_1);
-    JLabel lblNewLabel_1_1 = new JLabel("which can be decrypted by the recipient with a password.");
-    lblNewLabel_1_1.setBounds(31, 75, 384, 14);
-    lblNewLabel_1_1.setFont(new Font("Tahoma", 0, 9));
-    this.frmSockergroda.getContentPane().add(lblNewLabel_1_1);
+    JLabel lblTitle = new JLabel("Sockergroda");
+    lblTitle.setBounds(10, 0, 237, 47);
+    lblTitle.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
+    lblTitle.setFont(new Font("Segoe UI Historic", Font.PLAIN, 35));
+    this.frmSockergroda.getContentPane().add(lblTitle);
     
-    JLabel licenseLabel = new JLabel("License");
-    licenseLabel.setBounds(10, 155, 54, 25);
-    licenseLabel.setForeground(SystemColor.desktop);
-    licenseLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 9));
-    licenseLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    licenseLabel.addMouseListener(new MouseListener() {
-		public void mouseReleased(MouseEvent e) {}
-		@Override
-		public void mousePressed(MouseEvent e) {
-			frmSockergroda.setVisible(false);
-			License.display();
-		}
-		public void mouseExited(MouseEvent e) {}
-		public void mouseEntered(MouseEvent e) {}
-		public void mouseClicked(MouseEvent e) {}
-	});
-    frmSockergroda.getContentPane().add(licenseLabel);
+    JLabel lblVersion = new JLabel(Main.versionName);
+    lblVersion.setBounds(245, 27, 85, 14);
+    lblVersion.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+    frmSockergroda.getContentPane().add(lblVersion);
     
-    JLabel lblNewLabel_3 = new JLabel(Main.version);
-    lblNewLabel_3.setBounds(245, 27, 85, 14);
-    lblNewLabel_3.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-    frmSockergroda.getContentPane().add(lblNewLabel_3);
+    JLabel lblCopyright = new JLabel("Copyright \u00A9 Sockergroda 2021. No rights reserved.");
+    lblCopyright.setBounds(100, 110, 227, 14);
+    lblCopyright.setFont(new Font("Segoe UI Historic", Font.PLAIN, 10));
+    frmSockergroda.getContentPane().add(lblCopyright);
     
-    JLabel lblNewLabel_2 = new JLabel("Copyright \u00A9 Sockergroda 2021. No rights reserved.");
-    lblNewLabel_2.setBounds(207, 155, 227, 14);
-    lblNewLabel_2.setFont(new Font("Segoe UI Historic", Font.PLAIN, 10));
-    frmSockergroda.getContentPane().add(lblNewLabel_2);
-    
-    JSeparator separator_1 = new JSeparator();
-    separator_1.setBounds(0, 184, 444, 7);
-    separator_1.setForeground(Color.LIGHT_GRAY);
-    separator_1.setBackground(Color.GRAY);
-    frmSockergroda.getContentPane().add(separator_1);
-    
-    JLabel advertisementLabel = new JLabel("ADVERTISEMENT");
-    advertisementLabel.setBounds(5, 191, 60, 14);
-    advertisementLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 8));
-    frmSockergroda.getContentPane().add(advertisementLabel);
+    JLabel lblAdvertisement = new JLabel("ADVERTISEMENT");
+    lblAdvertisement.setBounds(5, 146, 60, 14);
+    lblAdvertisement.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 8));
+    frmSockergroda.getContentPane().add(lblAdvertisement);
     
     advertisement = new JLabel();
-    advertisement.setBounds(5, 208, 424, 48);
+    advertisement.setBounds(5, 163, 424, 48);
     advertisement.setCursor(new Cursor(Cursor.HAND_CURSOR));
     advertisement.addMouseListener(new MouseListener() {
 		public void mouseReleased(MouseEvent e) {}
 		@Override
 		public void mousePressed(MouseEvent e) {
-			if(e.getButton() == 3) {
-				advertisement.setIcon(null);
-				adData = null;
-				advertisement.setVisible(false);
-				loadAdvertisement();
-				advertisement.setVisible(true);
-				return;
-			}
-			
 			if(adData == null || OpenAdvertisementWindow.openingAdvertisement) {
 				return;
 			}
@@ -171,41 +130,125 @@ public class MainWindow {
 	});
     frmSockergroda.getContentPane().add(advertisement);
     
-    JLabel removeAdvertisementsLabel = new JLabel("Remove Advertisements");
-    removeAdvertisementsLabel.setBounds(330, 186, 100, 25);
-    removeAdvertisementsLabel.setForeground(SystemColor.desktop);
-    removeAdvertisementsLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 9));
-    removeAdvertisementsLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    removeAdvertisementsLabel.addMouseListener(new MouseListener() {
-		public void mouseReleased(MouseEvent e) {}
+    lblStatus = new JLabel();
+    lblStatus.setHorizontalAlignment(SwingConstants.CENTER);
+    lblStatus.setFont(new Font("Verdana", Font.PLAIN, 10));
+    lblStatus.setBounds(295, 27, 140, 14);
+    frmSockergroda.getContentPane().add(lblStatus);
+    
+    JSeparator separator_2 = new JSeparator();
+    separator_2.setBounds(10, 58, 411, 7);
+    frmSockergroda.getContentPane().add(separator_2);
+    
+    JSeparator separator_2_1 = new JSeparator();
+    separator_2_1.setBounds(10, 135, 411, 7);
+    frmSockergroda.getContentPane().add(separator_2_1);
+    
+    JMenuBar menuBar = new JMenuBar();
+    frmSockergroda.setJMenuBar(menuBar);
+    
+    JMenu mnConfig = new JMenu("Configuration");
+    menuBar.add(mnConfig);
+    
+    JMenuItem mntmResetConfig = new JMenuItem("Reset configuration...");
+    mntmResetConfig.setIcon(new ImageIcon(Images.RESET_CONFIG_16x16.getImage()));
+    mntmResetConfig.addActionListener(new ActionListener() {
 		@Override
-		public void mousePressed(MouseEvent e) {
+		public void actionPerformed(ActionEvent e) {
+			int option = JOptionPane.showConfirmDialog(frmSockergroda, "Do you want to reset the current configuration?\nAll Sockergroda data will be lost.", "Reset Configuration", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if(option == 0) {
+				StorageManager.resetFile();
+				JOptionPane.showMessageDialog(frmSockergroda, "The configuration has been reset. Sockergroda will now restart.", "Configuration Reset", JOptionPane.INFORMATION_MESSAGE);
+				frmSockergroda.setVisible(false);
+				MainWindow.display();
+			}
+		}
+	});
+    
+    JCheckBoxMenuItem chckbxmntmAutomaticUpdateChecker = new JCheckBoxMenuItem("Automatically check for updates");
+    chckbxmntmAutomaticUpdateChecker.setSelected(StorageManager.getBoolean("automatic_update_check"));
+    chckbxmntmAutomaticUpdateChecker.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			StorageManager.setAttribute("automatic_update_check", chckbxmntmAutomaticUpdateChecker.isSelected());
+		}
+	});
+    mnConfig.add(chckbxmntmAutomaticUpdateChecker);
+    
+    JMenuItem mntmRemoveAds = new JMenuItem("Remove advertisements...");
+    mntmRemoveAds.setEnabled(!adsRemoved);
+    mntmRemoveAds.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
 			frmSockergroda.setVisible(false);
 			RemoveAdvertisements.display();
 		}
-		public void mouseExited(MouseEvent e) {}
-		public void mouseEntered(MouseEvent e) {}
-		public void mouseClicked(MouseEvent e) {}
 	});
-    frmSockergroda.getContentPane().add(removeAdvertisementsLabel);
+    mnConfig.add(mntmRemoveAds);
+    mnConfig.add(mntmResetConfig);
     
-    final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    executorService.scheduleAtFixedRate(new Runnable() {
-        @Override
-        public void run() {
-        	loadAdvertisement();
-            executorService.shutdown();
+    JMenu mnHelp = new JMenu("Help");
+    menuBar.add(mnHelp);
+    
+    JMenuItem mntmGitHub = new JMenuItem("GitHub repository");
+    mntmGitHub.setIcon(new ImageIcon(Images.REPOSITORY_16x16.getImage()));
+    mntmGitHub.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	Main.openURL(Main.helpUrl);
         }
-    }, 100, 1, TimeUnit.MILLISECONDS);
+    });
+    mnHelp.add(mntmGitHub);
+    
+    JMenuItem mntmCheckUpdate = new JMenuItem("Check for newer versions...");
+    mntmCheckUpdate.setIcon(new ImageIcon(Images.UPDATE_16x16.getImage()));
+    mntmCheckUpdate.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			checkVersion(true);
+		}
+	});
+    
+    JMenuItem mntmReportIssue = new JMenuItem("Report an issue");
+    mntmReportIssue.setIcon(new ImageIcon(Images.ISSUE_16x16.getImage()));
+    mntmReportIssue.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	Main.openURL(Main.reportIssueUrl);
+        }
+    });
+    mnHelp.add(mntmReportIssue);
+    mnHelp.add(mntmCheckUpdate);
+    
+    JMenuItem mntmAbout = new JMenuItem("About Sockergroda...");
+    mntmAbout.setIcon(new ImageIcon(Images.ABOUT_16x16.getImage()));
+    mntmAbout.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			frmSockergroda.setVisible(false);
+			AboutWindow.display();
+		}
+	});
+    mnHelp.add(mntmAbout);
+    
+    if(!Main.hasRemovedAds()) {
+	    final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+	    executorService.scheduleAtFixedRate(new Runnable() {
+	        @Override
+	        public void run() {
+	        	loadAdvertisement();
+	        }
+	    }, 100, 10000, TimeUnit.MILLISECONDS);
+	}
     
     final ScheduledExecutorService executorService1 = Executors.newSingleThreadScheduledExecutor();
     executorService1.scheduleAtFixedRate(new Runnable() {
         @Override
         public void run() {
-        	checkVersion();
+        	if(StorageManager.getBoolean("automatic_update_check")) {
+        		checkVersion(false);
+        	}
             executorService1.shutdown();
         }
-    }, 7, 1, TimeUnit.SECONDS);
+    }, 5, 1, TimeUnit.SECONDS);
   }
   
   private void loadAdvertisement() {
@@ -232,30 +275,38 @@ public class MainWindow {
     }
   }
   
-  private void checkVersion() {
-	  if(!frmSockergroda.isVisible()) {
-		  return;
-	  }
-	  try {
+private void checkVersion(boolean showNoUpdateMessage) {
+	if(!frmSockergroda.isVisible()) {
+		return;
+	}
+
+	try {
 		JSONObject globalVersionData = APIManager.grabVersionData();
 		int latestVersion = globalVersionData.getInt("latest_version");
 		if(latestVersion > Main.versionInt) {
-			String[] options = {"Download", "Not now"};
-			int updateChoice = JOptionPane.showOptionDialog(frmSockergroda, "A new version (" + VersionConverter.intToString(latestVersion) + ") is available.\nUpdate for new features, bug fixes and improvements.", "Please Update Sockergroda", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Images.ICON_32x32.getImage()), options, options[1]);
+			String[] options = { "Download", "Not now" };
+			int updateChoice = JOptionPane.showOptionDialog(frmSockergroda,
+					"A new version (" + VersionConverter.intToString(latestVersion)
+							+ ") is available.\nUpdate for new features, bug fixes and improvements.",
+					"Please Update Sockergroda", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE,
+					new ImageIcon(Images.ICON_32x32.getImage()), options, options[1]);
 			if(updateChoice == 0) {
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-				if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-					try {
-						desktop.browse(new URI(Main.downloadUrl));
-					} catch (IOException | URISyntaxException e1) {
-						e1.printStackTrace();
-						JOptionPane.showMessageDialog(frmSockergroda, "Could not open the web page.", "Browser Error", JOptionPane.ERROR_MESSAGE);
-					}
-				}
+				Main.openURL(Main.downloadUrl);
 			}
+		} else if(showNoUpdateMessage) {
+			JOptionPane.showMessageDialog(frmSockergroda, "You are running the latest version of Sockergroda.", "No Update Available", JOptionPane.INFORMATION_MESSAGE);
 		}
-	} catch (IOException e) {
+	} catch(IOException e) {
 		e.printStackTrace();
 	}
+}
+  
+  private void updateStatusText(String text) {
+	  this.lblStatus.setText(text != null ? text : "");
+  }
+  
+  @SuppressWarnings("unused")
+private void removeStatusText() {
+	  this.updateStatusText(null);
   }
 }

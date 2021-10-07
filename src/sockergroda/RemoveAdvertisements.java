@@ -43,14 +43,14 @@ public class RemoveAdvertisements {
 		frmSockergrodaRemoveAds = new JFrame();
 		frmSockergrodaRemoveAds.setResizable(false);
 		frmSockergrodaRemoveAds.setTitle("Sockergroda - Remove Advertisements");
-		frmSockergrodaRemoveAds.setBounds(100, 100, 385, 185);
+		frmSockergrodaRemoveAds.setBounds(100, 100, 385, 140);
 		frmSockergrodaRemoveAds.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    frmSockergrodaRemoveAds.setIconImage(Images.ICON_1024x1024.getImage());
 	    frmSockergrodaRemoveAds.setLocationRelativeTo(null);
 	    frmSockergrodaRemoveAds.getContentPane().setLayout(null);
 	    
 	    JButton btnBack = new JButton("Back");
-	    btnBack.setBounds(10, 112, 89, 23);
+	    btnBack.setBounds(270, 68, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaRemoveAds.setVisible(false);
@@ -60,16 +60,16 @@ public class RemoveAdvertisements {
 	    frmSockergrodaRemoveAds.getContentPane().add(btnBack);
 	    
 	    textField = new JTextField();
-	    textField.setBounds(10, 52, 86, 20);
+	    textField.setBounds(10, 37, 86, 20);
 	    frmSockergrodaRemoveAds.getContentPane().add(textField);
 	    textField.setColumns(10);
 	    
 	    JLabel lblNewLabel = new JLabel("Enter a key given by the developer to remove advertisements:");
-	    lblNewLabel.setBounds(10, 27, 362, 14);
+	    lblNewLabel.setBounds(10, 12, 362, 14);
 	    frmSockergrodaRemoveAds.getContentPane().add(lblNewLabel);
 	    
 	    JButton btnRemoveAds = new JButton("Remove Ads");
-	    btnRemoveAds.setBounds(10, 83, 130, 23);
+	    btnRemoveAds.setBounds(10, 68, 110, 23);
 	    btnRemoveAds.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		if(Main.hasRemovedAds()) {
