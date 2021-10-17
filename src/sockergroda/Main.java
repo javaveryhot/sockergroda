@@ -9,15 +9,18 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.json.JSONObject;
+
 import utils.VersionConverter;
 
 public class Main {
-	public static int versionInt = 104;
+	public static int versionInt = 106;
 	public static String versionName = VersionConverter.intToString(versionInt); // Only for visuals! Do not use for detection
 	public static String version = VersionConverter.intToString(versionInt, false);
-	public static String downloadUrl = "https://github.com/javaveryhot/sockergroda/releases";
-	public static String helpUrl = "https://github.com/javaveryhot/sockergroda";
+	public static String downloadUrl = "https://sockergroda.repl.co/download";
+	public static String helpUrl = "https://sockergroda.repl.co/help";
 	public static String reportIssueUrl = "https://github.com/javaveryhot/sockergroda/issues";
+	public static String gitHubUrl = "https://github.com/javaveryhot/sockergroda";
 	
 	public static void main(String[] args) {
 		StorageManager.createStorageFile();
@@ -29,7 +32,12 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		MainWindow.display();
+		if(!StorageManager.getBoolean("pre_usage_warning_confirmed")) {
+			PreUsageWarningWindow.display();
+		} else {
+			MainWindow.display();
+		}
+		
 		if(!hasInternetConnection()) {
 			JOptionPane.showMessageDialog(null, "Could not connect to the internet.\nMake sure that you have an internet connection and try again.\nIt is required in order to use Sockergroda.", "No Internet Access", JOptionPane.ERROR_MESSAGE);
 		}
@@ -58,13 +66,25 @@ public class Main {
 	
 	public static void openURL(String url) {
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+		if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
 			try {
 				desktop.browse(new URI(url));
-			} catch (IOException | URISyntaxException e1) {
+			} catch(IOException | URISyntaxException e1) {
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Could not open the web page.", "Browser Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
+	}
+	
+	public static void displayUpdate(boolean onlyIfAvailable) {
+    	try {
+    		JSONObject globalVersionData = APIManager.grabVersionData();
+    		int latestVersion = globalVersionData.getInt("latest_version");
+    		if(latestVersion > Main.versionInt || !onlyIfAvailable) {
+    			UpdateWindow.display(versionInt, latestVersion);
+    		}
+    	} catch(IOException e) {
+    		e.printStackTrace();
+    	}
 	}
 }

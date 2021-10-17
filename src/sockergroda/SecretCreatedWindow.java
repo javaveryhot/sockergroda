@@ -5,18 +5,20 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import sockergroda.enums.Images;
+import java.awt.Font;
 
 public class SecretCreatedWindow {
 
 	private JFrame frmSockergrodaSecret;
 	private JTextField txtSecretId;
-	private boolean showingPassword;
 
 	/**
 	 * Launch the application.
@@ -34,7 +36,6 @@ public class SecretCreatedWindow {
 	 * Create the application.
 	 */
 	public SecretCreatedWindow(int secretId, String password, long expiration, int expirationType) {
-		this.showingPassword = true;
 		initialize(secretId, password, expiration, expirationType);
 	}
 
@@ -42,12 +43,12 @@ public class SecretCreatedWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize(int secretId, String password, long expiration, int expirationType) {
-		frmSockergrodaSecret = new JFrame();
+		frmSockergrodaSecret = new SGFrame();
 		frmSockergrodaSecret.setTitle("Sockergroda - Secret Created");
 		frmSockergrodaSecret.setResizable(false);
 		frmSockergrodaSecret.setBounds(100, 100, 500, 160);
 		frmSockergrodaSecret.setLocationRelativeTo(null);
-		frmSockergrodaSecret.setIconImage(Images.ICON_1024x1024.getImage());
+		frmSockergrodaSecret.setIconImage(Images.ICON_32x32.getImage());
 		frmSockergrodaSecret.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmSockergrodaSecret.getContentPane().setLayout(null);
 		
@@ -63,6 +64,7 @@ public class SecretCreatedWindow {
 		txtSecretId.setColumns(10);
 		
 		JButton btnCopy = new JButton("Copy");
+		btnCopy.setIcon(new ImageIcon(Images.SCISSORS_16x16.getImage()));
 		btnCopy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				StringSelection copyString = new StringSelection(txtSecretId.getText());
@@ -88,23 +90,22 @@ public class SecretCreatedWindow {
 			textField.setBounds(25, 89, 125, 20);
 			frmSockergrodaSecret.getContentPane().add(textField);
 			
-			JButton btnToggleShowPassword = new JButton();
-			btnToggleShowPassword.addActionListener(new ActionListener() {
+			JCheckBox toggleShowPasswordCheckBox = new JCheckBox("Show password");
+			toggleShowPasswordCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					showingPassword = !showingPassword;
-					textField.setText(showingPassword ? password : password.replaceAll(".", "*"));
-					btnToggleShowPassword.setText(showingPassword ? "Hide" : "Show");
+					textField.setText(toggleShowPasswordCheckBox.isSelected() ? password : password.replaceAll(".", "*"));
 				}
 			});
-			btnToggleShowPassword.doClick();
-			btnToggleShowPassword.setBounds(160, 88, 77, 23);
-			frmSockergrodaSecret.getContentPane().add(btnToggleShowPassword);
+			toggleShowPasswordCheckBox.doClick();
+			toggleShowPasswordCheckBox.doClick();
+			toggleShowPasswordCheckBox.setBounds(160, 88, 100, 23);
+			frmSockergrodaSecret.getContentPane().add(toggleShowPasswordCheckBox);
 		}
 		
 		JButton btnClose = new JButton("Close");
 		btnClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaSecret.setVisible(false);
+				frmSockergrodaSecret.dispose();
 				System.exit(1);
 			}
 		});
@@ -114,11 +115,16 @@ public class SecretCreatedWindow {
 		JButton btnBack = new JButton("Back");
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaSecret.setVisible(false);
+				frmSockergrodaSecret.dispose();
 				MainWindow.display();
 			}
 		});
 		btnBack.setBounds(317, 86, 70, 23);
 		frmSockergrodaSecret.getContentPane().add(btnBack);
+		
+		JLabel lblSaved = new JLabel(StorageManager.getBoolean("save_secrets") ? "Saved to your secrets" : "");
+		lblSaved.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblSaved.setBounds(317, 61, 150, 14);
+		frmSockergrodaSecret.getContentPane().add(lblSaved);
 	}
 }

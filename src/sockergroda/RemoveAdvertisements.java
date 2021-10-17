@@ -40,12 +40,12 @@ public class RemoveAdvertisements {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmSockergrodaRemoveAds = new JFrame();
+		frmSockergrodaRemoveAds = new SGFrame();
 		frmSockergrodaRemoveAds.setResizable(false);
 		frmSockergrodaRemoveAds.setTitle("Sockergroda - Remove Advertisements");
 		frmSockergrodaRemoveAds.setBounds(100, 100, 385, 140);
 		frmSockergrodaRemoveAds.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    frmSockergrodaRemoveAds.setIconImage(Images.ICON_1024x1024.getImage());
+	    frmSockergrodaRemoveAds.setIconImage(Images.ICON_32x32.getImage());
 	    frmSockergrodaRemoveAds.setLocationRelativeTo(null);
 	    frmSockergrodaRemoveAds.getContentPane().setLayout(null);
 	    
@@ -53,7 +53,7 @@ public class RemoveAdvertisements {
 	    btnBack.setBounds(270, 68, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaRemoveAds.setVisible(false);
+				frmSockergrodaRemoveAds.dispose();
 				MainWindow.display();
 			}
 		});

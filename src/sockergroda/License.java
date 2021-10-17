@@ -15,7 +15,7 @@ import sockergroda.enums.Images;
 
 public class License {
 
-	private JFrame frmSockergrodaUser;
+	private JFrame frmSockergrodaLicense;
 
 	/**
 	 * Launch the application.
@@ -23,7 +23,7 @@ public class License {
 	public static void display() {
 		try {
 			License window = new License();
-			window.frmSockergrodaUser.setVisible(true);
+			window.frmSockergrodaLicense.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -40,23 +40,23 @@ public class License {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmSockergrodaUser = new JFrame();
-		frmSockergrodaUser.setTitle("Sockergroda - License");
-		frmSockergrodaUser.setBounds(100, 100, 850, 385);
-		frmSockergrodaUser.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    frmSockergrodaUser.setIconImage(Images.ICON_1024x1024.getImage());
-	    frmSockergrodaUser.setLocationRelativeTo(null);
-	    frmSockergrodaUser.getContentPane().setLayout(null);
+		frmSockergrodaLicense = new SGFrame();
+		frmSockergrodaLicense.setTitle("Sockergroda - License");
+		frmSockergrodaLicense.setBounds(100, 100, 850, 385);
+		frmSockergrodaLicense.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    frmSockergrodaLicense.setIconImage(Images.ICON_32x32.getImage());
+	    frmSockergrodaLicense.setLocationRelativeTo(null);
+	    frmSockergrodaLicense.getContentPane().setLayout(null);
 	    
 	    JButton btnBack = new JButton("Back");
 	    btnBack.setBounds(10, 312, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaUser.setVisible(false);
+				frmSockergrodaLicense.dispose();
 				AboutWindow.display();
 			}
 		});
-	    frmSockergrodaUser.getContentPane().add(btnBack);
+	    frmSockergrodaLicense.getContentPane().add(btnBack);
 	    
 	    TextArea textArea = new TextArea();
 	    textArea.setEditable(false);
@@ -82,6 +82,6 @@ public class License {
 	    	fileContent = "Couldn't read the license file;\n" + e.toString();
 	    }
 	    textArea.setText(fileContent);
-	    frmSockergrodaUser.getContentPane().add(textArea);
+	    frmSockergrodaLicense.getContentPane().add(textArea);
 	}
 }

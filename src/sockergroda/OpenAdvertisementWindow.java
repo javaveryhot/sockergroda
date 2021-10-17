@@ -59,11 +59,11 @@ public class OpenAdvertisementWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmSockergrodaOpenAd = new JFrame();
+		frmSockergrodaOpenAd = new SGFrame();
 		frmSockergrodaOpenAd.setResizable(false);
 		frmSockergrodaOpenAd.setTitle("Opening Webpage");
 		frmSockergrodaOpenAd.setBounds(100, 100, 240, 135);
-	    frmSockergrodaOpenAd.setIconImage(Images.ICON_1024x1024.getImage());
+	    frmSockergrodaOpenAd.setIconImage(Images.ICON_32x32.getImage());
 	    frmSockergrodaOpenAd.setLocationRelativeTo(null);
 	    frmSockergrodaOpenAd.getContentPane().setLayout(null);
 	    
@@ -83,7 +83,7 @@ public class OpenAdvertisementWindow {
 	    frmSockergrodaOpenAd.getContentPane().add(lblWarning);
 	    
 	    JLabel lblUrl = new JLabel(url);
-	    lblUrl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+	    lblUrl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 	    lblUrl.setHorizontalAlignment(SwingConstants.CENTER);
 	    lblUrl.setBounds(10, 29, 204, 23);
 	    frmSockergrodaOpenAd.getContentPane().add(lblUrl);

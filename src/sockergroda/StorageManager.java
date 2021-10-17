@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,6 +54,7 @@ public class StorageManager {
 	public static void resetFile() {
 		JSONObject defaultSettings = new JSONObject();
 		defaultSettings.put("automatic_update_check", true);
+		defaultSettings.put("save_secrets", true);
 		setStorage(defaultSettings);
 	}
 	
@@ -92,6 +95,10 @@ public class StorageManager {
 		setStorage(theStorage);
 	}
 	
+	public static Object getAttribute(String key) {
+		return hasAttribute(key) ? getStorage().get(key) : null;
+	}
+	
 	public static boolean hasAttribute(String key) {
 		return getStorage().has(key);
 	}
@@ -106,5 +113,13 @@ public class StorageManager {
 
 	public static String getString(String key) {
 		return hasAttribute(key) ? getStorage().getString(key) : "";
+	}
+	
+	public static Map<String, Object> getJSOMap(String key) {
+		return hasAttribute(key) ? getStorage().getJSONObject(key).toMap() : new HashMap<String, Object>();
+	}
+
+	public static long getLong(String key) {
+		return hasAttribute(key) ? getStorage().getLong(key) : 0;
 	}
 }

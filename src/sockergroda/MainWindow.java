@@ -3,11 +3,12 @@ package sockergroda;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
@@ -26,18 +27,17 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 
 import org.json.JSONObject;
 
 import sockergroda.enums.Images;
-import utils.VersionConverter;
 
 public class MainWindow {
   private JFrame frmSockergroda;
   private JSONObject adData;
   private JLabel advertisement;
-  private JLabel lblStatus;
+  private JLabel lblAdText;
+  private boolean loadedAdLast = true;
   
   public static void display() {
     try {
@@ -53,43 +53,41 @@ public class MainWindow {
   }
   
   private void initialize() {
-    this.frmSockergroda = new JFrame();
+    this.frmSockergroda = new SGFrame();
     this.frmSockergroda.setResizable(false);
     this.frmSockergroda.setTitle("Sockergroda " + Main.versionName);
     boolean adsRemoved = Main.hasRemovedAds();
     this.frmSockergroda.setBounds(100, 100, 450, !adsRemoved ? 280 : 195);
     this.frmSockergroda.setLocationRelativeTo(null);
     this.frmSockergroda.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    this.frmSockergroda.getContentPane().setLayout((LayoutManager)null);
-    this.frmSockergroda.setIconImage(Images.ICON_1024x1024.getImage());
+    this.frmSockergroda.setIconImage(Images.ICON_32x32.getImage());
+    this.frmSockergroda.getContentPane().setLayout(null);
 
-    JButton btnCreate = new JButton("CREATE");
+    JButton btnCreate = new JButton("Create");
     btnCreate.setToolTipText("Create a secret to be inspected by other people");
     btnCreate.setIcon(new ImageIcon(Images.CREATE_16x16.getImage()));
     btnCreate.setBounds(100, 76, 105, 24);
     btnCreate.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            MainWindow.this.frmSockergroda.setVisible(false);
+            MainWindow.this.frmSockergroda.dispose();
             CreateSecretWindow.display();
           }
     });
-    frmSockergroda.getContentPane().setLayout(null);
-    frmSockergroda.getContentPane().setLayout(null);
-    frmSockergroda.getContentPane().setLayout(null);
-    frmSockergroda.getContentPane().setLayout(null);
-    frmSockergroda.getContentPane().setLayout(null);
     this.frmSockergroda.getContentPane().add(btnCreate);
-    JButton btnInspect = new JButton("INSPECT");
+    
+    
+    JButton btnInspect = new JButton("Inspect");
     btnInspect.setToolTipText("Inspect a key that you have and see what it says");
     btnInspect.setIcon(new ImageIcon(Images.INSPECT_16x16.getImage()));
     btnInspect.setBounds(216, 76, 105, 24);
     btnInspect.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            MainWindow.this.frmSockergroda.setVisible(false);
+            MainWindow.this.frmSockergroda.dispose();
             InspectSecretWindow.display();
           }
     });
     this.frmSockergroda.getContentPane().add(btnInspect);
+
     JLabel lblTitle = new JLabel("Sockergroda");
     lblTitle.setBounds(10, 0, 237, 47);
     lblTitle.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
@@ -107,7 +105,7 @@ public class MainWindow {
     frmSockergroda.getContentPane().add(lblCopyright);
     
     JLabel lblAdvertisement = new JLabel("ADVERTISEMENT");
-    lblAdvertisement.setBounds(5, 146, 60, 14);
+    lblAdvertisement.setBounds(5, 146, 75, 14);
     lblAdvertisement.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 8));
     frmSockergroda.getContentPane().add(lblAdvertisement);
     
@@ -130,12 +128,6 @@ public class MainWindow {
 	});
     frmSockergroda.getContentPane().add(advertisement);
     
-    lblStatus = new JLabel();
-    lblStatus.setHorizontalAlignment(SwingConstants.CENTER);
-    lblStatus.setFont(new Font("Verdana", Font.PLAIN, 10));
-    lblStatus.setBounds(295, 27, 140, 14);
-    frmSockergroda.getContentPane().add(lblStatus);
-    
     JSeparator separator_2 = new JSeparator();
     separator_2.setBounds(10, 58, 411, 7);
     frmSockergroda.getContentPane().add(separator_2);
@@ -143,6 +135,11 @@ public class MainWindow {
     JSeparator separator_2_1 = new JSeparator();
     separator_2_1.setBounds(10, 135, 411, 7);
     frmSockergroda.getContentPane().add(separator_2_1);
+    
+    lblAdText = new JLabel();
+    lblAdText.setFont(new Font("Tahoma", Font.PLAIN, 10));
+    lblAdText.setBounds(81, 146, 340, 14);
+    frmSockergroda.getContentPane().add(lblAdText);
     
     JMenuBar menuBar = new JMenuBar();
     frmSockergroda.setJMenuBar(menuBar);
@@ -159,8 +156,8 @@ public class MainWindow {
 			if(option == 0) {
 				StorageManager.resetFile();
 				JOptionPane.showMessageDialog(frmSockergroda, "The configuration has been reset. Sockergroda will now restart.", "Configuration Reset", JOptionPane.INFORMATION_MESSAGE);
-				frmSockergroda.setVisible(false);
-				MainWindow.display();
+				frmSockergroda.dispose();
+				Main.main(null);
 			}
 		}
 	});
@@ -173,6 +170,17 @@ public class MainWindow {
 			StorageManager.setAttribute("automatic_update_check", chckbxmntmAutomaticUpdateChecker.isSelected());
 		}
 	});
+    
+    JMenuItem mntmStoredSecrets = new JMenuItem("Saved secrets...");
+    mntmStoredSecrets.setIcon(new ImageIcon(Images.SAVED_SECRETS_16x16.getImage()));
+    mntmStoredSecrets.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			frmSockergroda.dispose();
+			StoredSecretsWindow.display();
+		}
+	});
+    mnConfig.add(mntmStoredSecrets);
     mnConfig.add(chckbxmntmAutomaticUpdateChecker);
     
     JMenuItem mntmRemoveAds = new JMenuItem("Remove advertisements...");
@@ -180,7 +188,7 @@ public class MainWindow {
     mntmRemoveAds.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			frmSockergroda.setVisible(false);
+			frmSockergroda.dispose();
 			RemoveAdvertisements.display();
 		}
 	});
@@ -194,17 +202,27 @@ public class MainWindow {
     mntmGitHub.setIcon(new ImageIcon(Images.REPOSITORY_16x16.getImage()));
     mntmGitHub.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-        	Main.openURL(Main.helpUrl);
+        	Main.openURL(Main.gitHubUrl);
         }
     });
+    
+    JMenuItem mntmTroubleshoot = new JMenuItem("Troubleshoot connection...");
+    mntmTroubleshoot.setIcon(new ImageIcon(Images.TROUBLESHOOT_CONNECTION_16x16.getImage()));
+    mntmTroubleshoot.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	TroubleshootWindow.display();
+        	frmSockergroda.dispose();
+        }
+    });
+    mnHelp.add(mntmTroubleshoot);
     mnHelp.add(mntmGitHub);
     
-    JMenuItem mntmCheckUpdate = new JMenuItem("Check for newer versions...");
+    JMenuItem mntmCheckUpdate = new JMenuItem("Check for update...");
     mntmCheckUpdate.setIcon(new ImageIcon(Images.UPDATE_16x16.getImage()));
     mntmCheckUpdate.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			checkVersion(true);
+			Main.displayUpdate(false);
 		}
 	});
     
@@ -223,7 +241,7 @@ public class MainWindow {
     mntmAbout.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			frmSockergroda.setVisible(false);
+			frmSockergroda.dispose();
 			AboutWindow.display();
 		}
 	});
@@ -234,7 +252,12 @@ public class MainWindow {
 	    executorService.scheduleAtFixedRate(new Runnable() {
 	        @Override
 	        public void run() {
-	        	loadAdvertisement();
+	        	if(frmSockergroda.isFocused()) {
+	        		loadAdvertisement();
+	        		loadedAdLast = true;
+	        	} else {
+	        		loadedAdLast = false;
+	        	}
 	        }
 	    }, 100, 10000, TimeUnit.MILLISECONDS);
 	}
@@ -243,70 +266,50 @@ public class MainWindow {
     executorService1.scheduleAtFixedRate(new Runnable() {
         @Override
         public void run() {
-        	if(StorageManager.getBoolean("automatic_update_check")) {
-        		checkVersion(false);
+        	if(StorageManager.getBoolean("automatic_update_check") && System.currentTimeMillis() > (StorageManager.getLong("last_update_check") + (24 * 60 * 60 * 1000))) {
+        		StorageManager.setAttribute("last_update_check", System.currentTimeMillis());
+        		Main.displayUpdate(true);
         	}
             executorService1.shutdown();
         }
-    }, 5, 1, TimeUnit.SECONDS);
-  }
-  
-  private void loadAdvertisement() {
-	try {
-		this.adData = APIManager.grabAdvertisement();
-	} catch (IOException e2) {}
-	
-	byte[] imageBytes = null;
-	if(this.adData != null) {
-		imageBytes = Base64.getDecoder().decode(this.adData.getString("banner"));
-	}
-	Image adBanner = Images.AD_SAMPLE.getImage();
-	try {
-		adBanner = ImageIO.read(new ByteArrayInputStream(imageBytes));
-	} catch (IOException e2) {
-		e2.printStackTrace();
-	}
-	
-    if(this.adData != null) {
-        advertisement.setToolTipText("Click to open the web page for the advertisement");
-        advertisement.setIcon(new ImageIcon(adBanner));
-    } else {
-    	advertisement.setText("Cannot load advertisement.");
-    }
-  }
-  
-private void checkVersion(boolean showNoUpdateMessage) {
-	if(!frmSockergroda.isVisible()) {
-		return;
-	}
-
-	try {
-		JSONObject globalVersionData = APIManager.grabVersionData();
-		int latestVersion = globalVersionData.getInt("latest_version");
-		if(latestVersion > Main.versionInt) {
-			String[] options = { "Download", "Not now" };
-			int updateChoice = JOptionPane.showOptionDialog(frmSockergroda,
-					"A new version (" + VersionConverter.intToString(latestVersion)
-							+ ") is available.\nUpdate for new features, bug fixes and improvements.",
-					"Please Update Sockergroda", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE,
-					new ImageIcon(Images.ICON_32x32.getImage()), options, options[1]);
-			if(updateChoice == 0) {
-				Main.openURL(Main.downloadUrl);
+    }, 1, 1, TimeUnit.SECONDS);
+    
+    frmSockergroda.addWindowFocusListener(new WindowFocusListener() {
+		@Override
+		public void windowLostFocus(WindowEvent e) {}
+		@Override
+		public void windowGainedFocus(WindowEvent e) {
+			if(!loadedAdLast) {
+				loadAdvertisement();
+				loadedAdLast = true;
 			}
-		} else if(showNoUpdateMessage) {
-			JOptionPane.showMessageDialog(frmSockergroda, "You are running the latest version of Sockergroda.", "No Update Available", JOptionPane.INFORMATION_MESSAGE);
 		}
-	} catch(IOException e) {
-		e.printStackTrace();
+	});
+  }
+  
+	private void loadAdvertisement() {
+		try {
+			this.adData = APIManager.grabAdvertisement();
+		} catch (IOException e2) {}
+		
+		lblAdText.setText(this.adData.getString("text"));
+		
+		byte[] imageBytes = null;
+		if(this.adData != null) {
+			imageBytes = Base64.getDecoder().decode(this.adData.getString("banner"));
+		}
+		Image adBanner = null;
+		try {
+			adBanner = ImageIO.read(new ByteArrayInputStream(imageBytes));
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+		
+		if(this.adData != null) {
+		    advertisement.setToolTipText("Click to open the web page for the advertisement");
+		    advertisement.setIcon(new ImageIcon(adBanner));
+		} else {
+			advertisement.setText("Cannot load advertisement.");
+		}
 	}
-}
-  
-  private void updateStatusText(String text) {
-	  this.lblStatus.setText(text != null ? text : "");
-  }
-  
-  @SuppressWarnings("unused")
-private void removeStatusText() {
-	  this.updateStatusText(null);
-  }
 }

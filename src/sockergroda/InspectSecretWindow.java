@@ -1,5 +1,6 @@
 package sockergroda;
 
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
@@ -37,38 +38,42 @@ public class InspectSecretWindow {
 	/**
 	 * Launch the application.
 	 */
-	public static void display() {
+	public static void display(String presetInput) {
 		try {
-			InspectSecretWindow window = new InspectSecretWindow();
+			InspectSecretWindow window = new InspectSecretWindow(presetInput);
 			window.frmSockergrodaInspect.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void display() {
+		display(null);
+	}
 
 	/**
 	 * Create the application.
 	 */
-	public InspectSecretWindow() {
+	public InspectSecretWindow(String presetInput) {
 		this.typeCount = 0;
 		try {
 			this.clipboard = ((String)Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor)).trim();
 		} catch(Exception e) {
 			this.clipboard = "";
 		}
-		initialize();
+		initialize(presetInput);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
-		frmSockergrodaInspect = new JFrame();
+	private void initialize(String presetInput) {
+		frmSockergrodaInspect = new SGFrame();
 		frmSockergrodaInspect.setResizable(false);
 		frmSockergrodaInspect.setTitle("Sockergroda - Inspect Secret");
 		frmSockergrodaInspect.setBounds(100, 100, 350, 180);
 		frmSockergrodaInspect.setLocationRelativeTo(null);
-		frmSockergrodaInspect.setIconImage(Images.ICON_1024x1024.getImage());
+		frmSockergrodaInspect.setIconImage(Images.ICON_32x32.getImage());
 		frmSockergrodaInspect.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmSockergrodaInspect.getContentPane().setLayout(null);
 		
@@ -126,13 +131,14 @@ public class InspectSecretWindow {
 					int code = jsonResponse.getInt("code");
 					if(code != 2) {
 						// Code 0 is invalid ID and 1 is bad password
-						JOptionPane.showMessageDialog(frmSockergrodaInspect, code == 0 ? "The secret you are trying to find has expired or never existed." : "Incorrect password for secret.", code == 0 ? "Bad ID" : "Bad Password", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frmSockergrodaInspect, code == 0 ? "There is no secret with such ID.\nIt has either expired or never existed." : "Incorrect password for secret.", code == 0 ? "Bad ID" : "Bad Password", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					String freeText = jsonResponse.getString("freetext");
+					String title = jsonResponse.getString("title");
 					long createdAt = jsonResponse.getLong("created_at");
-					frmSockergrodaInspect.setVisible(false);
-					DisplaySecretWindow.display(freeText, createdAt);
+					frmSockergrodaInspect.dispose();
+					DisplaySecretWindow.display(freeText, title, createdAt);
 				} catch (IOException e1) {
 					JOptionPane.showMessageDialog(frmSockergrodaInspect, "An error occured whilst trying to connect to the server. Please try again later.", "Server Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -155,7 +161,7 @@ public class InspectSecretWindow {
 		JButton btnCancel = new JButton("Back");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaInspect.setVisible(false);
+				frmSockergrodaInspect.dispose();
 				MainWindow.display();
 			}
 		});
@@ -170,7 +176,16 @@ public class InspectSecretWindow {
 		lblPasswordNote.setBounds(138, 74, 125, 14);
 		frmSockergrodaInspect.getContentPane().add(lblPasswordNote);
 		
-		if(this.clipboard.startsWith("<sg?") && this.clipboard.endsWith(">")) {
+		JLabel lblWndTitle = new JLabel("Inspect");
+		lblWndTitle.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
+	    lblWndTitle.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
+		lblWndTitle.setBounds(119, 98, 93, 32);
+		frmSockergrodaInspect.getContentPane().add(lblWndTitle);
+		
+		if(presetInput != null) {
+			txtId.setText(presetInput);
+			this.validationTimeout();
+		} else if(this.clipboard.startsWith("<sg?") && this.clipboard.endsWith(">")) {
 			txtId.setText(clipboard);
 			this.validationTimeout();
 		}
@@ -205,7 +220,7 @@ public class InspectSecretWindow {
 			}
 		}
 		
-		this.validationIcon.setIcon(new ImageIcon(validMode ? Images.VALID_ICON_16x16.getImage() : Images.INVALID_ICON_16x16.getImage()));
+		this.validationIcon.setIcon(new ImageIcon(validMode ? Images.CORRECT_16x16.getImage() : Images.INCORRECT_16x16.getImage()));
 		this.validationIcon.setText((validMode ? "Valid" : "Invalid") + (this.clipboard.length() > 0 && secretId.equals(this.clipboard) ? " (from clipboard)" : ""));
 		if(validMode && !passwordless) {
 			// Secret exists and requires password
