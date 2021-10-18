@@ -45,34 +45,24 @@ public class DisplaySecretWindow {
 	 */
 	private void initialize(String freeText, String title, long createdAt) {
 		frmSockergrodaInspecting = new SGFrame();
-		frmSockergrodaInspecting.setTitle("Sockergroda - Inspecting Secret");
+		frmSockergrodaInspecting.setTitle("Inspecting Secret");
 		frmSockergrodaInspecting.setResizable(false);
 		frmSockergrodaInspecting.setIconImage(Images.ICON_32x32.getImage());
 		frmSockergrodaInspecting.setBounds(100, 100, 450, 340);
 		frmSockergrodaInspecting.setLocationRelativeTo(null);
-		frmSockergrodaInspecting.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaInspecting.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmSockergrodaInspecting.getContentPane().setLayout(null);
 		
 		TextArea textArea = new TextArea();
+		textArea.setFont(new Font("Monospaced", Font.BOLD, 12));
 		textArea.setEditable(false);
 		textArea.setBounds(10, 75, 380, 160);
 		frmSockergrodaInspecting.getContentPane().add(textArea);
-		
-		JButton btnBack = new JButton("Back");
-		btnBack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaInspecting.dispose();
-				MainWindow.display();
-			}
-		});
-		btnBack.setBounds(262, 265, 70, 23);
-		frmSockergrodaInspecting.getContentPane().add(btnBack);
 		
 		JButton btnClose = new JButton("Close");
 		btnClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaInspecting.dispose();
-				System.exit(1);
 			}
 		});
 		btnClose.setBounds(342, 265, 70, 23);
@@ -102,6 +92,18 @@ public class DisplaySecretWindow {
 		frmSockergrodaInspecting.getContentPane().add(chckbxMaskMode);
 		
 		chckbxMaskMode.setSelected(StorageManager.getBoolean("mask_inspection"));
+		
+		JButton btnCopy = new JButton("Copy content");
+		btnCopy.setIcon(new ImageIcon(Images.COPY_16x16.getImage()));
+		btnCopy.setBounds(262, 45, 128, 23);
+		btnCopy.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Main.copyToClipboard(freeText);
+			}
+		});
+		frmSockergrodaInspecting.getContentPane().add(btnCopy);
+
 		maskChange.stateChanged(null);
 		
 		chckbxMaskMode.grabFocus();

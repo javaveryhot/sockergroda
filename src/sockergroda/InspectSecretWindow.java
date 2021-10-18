@@ -34,33 +34,31 @@ public class InspectSecretWindow {
 	private JLabel lblPasswordNote;
 	private int typeCount;
 	private String clipboard;
+	private boolean autoInspect;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void display(String presetInput) {
+	public static void display(String presetInput, boolean autoInspect) {
 		try {
-			InspectSecretWindow window = new InspectSecretWindow(presetInput);
+			InspectSecretWindow window = new InspectSecretWindow(presetInput, autoInspect);
 			window.frmSockergrodaInspect.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void display() {
-		display(null);
-	}
-
 	/**
 	 * Create the application.
 	 */
-	public InspectSecretWindow(String presetInput) {
+	public InspectSecretWindow(String presetInput, boolean autoInspect) {
 		this.typeCount = 0;
 		try {
 			this.clipboard = ((String)Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor)).trim();
 		} catch(Exception e) {
 			this.clipboard = "";
 		}
+		this.autoInspect = autoInspect;
 		initialize(presetInput);
 	}
 
@@ -70,11 +68,11 @@ public class InspectSecretWindow {
 	private void initialize(String presetInput) {
 		frmSockergrodaInspect = new SGFrame();
 		frmSockergrodaInspect.setResizable(false);
-		frmSockergrodaInspect.setTitle("Sockergroda - Inspect Secret");
+		frmSockergrodaInspect.setTitle("Inspect Secret");
 		frmSockergrodaInspect.setBounds(100, 100, 350, 180);
 		frmSockergrodaInspect.setLocationRelativeTo(null);
 		frmSockergrodaInspect.setIconImage(Images.ICON_32x32.getImage());
-		frmSockergrodaInspect.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaInspect.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmSockergrodaInspect.getContentPane().setLayout(null);
 		
 		JLabel lblId = new JLabel("ID:");
@@ -158,11 +156,10 @@ public class InspectSecretWindow {
 			}
 		});
 		
-		JButton btnCancel = new JButton("Back");
+		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaInspect.dispose();
-				MainWindow.display();
 			}
 		});
 		btnCancel.setBounds(231, 102, 89, 23);
@@ -239,6 +236,10 @@ public class InspectSecretWindow {
 			this.btnInspect.grabFocus();
 			this.passwordField.setEnabled(false);
 			this.lblPasswordNote.setText("No password for secret");
+			
+			if(this.autoInspect) {
+				this.btnInspect.doClick();
+			}
 		}
 	}
 	

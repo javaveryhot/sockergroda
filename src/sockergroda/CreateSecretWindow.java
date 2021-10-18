@@ -80,7 +80,7 @@ public class CreateSecretWindow {
 	private void initialize() {
 		frmSockergrodaCreate = new SGFrame();
 		frmSockergrodaCreate.setResizable(false);
-		frmSockergrodaCreate.setTitle("Sockergroda - Create Secret");
+		frmSockergrodaCreate.setTitle("Create Secret");
 		frmSockergrodaCreate.setBounds(100, 100, 450, 520);
 		frmSockergrodaCreate.setLocationRelativeTo(null);
 		frmSockergrodaCreate.setIconImage(Images.ICON_32x32.getImage());
@@ -103,6 +103,7 @@ public class CreateSecretWindow {
 		frmSockergrodaCreate.getContentPane().add(lblFreeText);
 		
 		TextArea textArea = new TextArea();
+		textArea.setFont(new Font("Monospaced", Font.BOLD, 12));
 		textArea.setBounds(10, 95, 380, 122);
 		textArea.addKeyListener(new KeyListener() {
 			@Override
@@ -136,11 +137,9 @@ public class CreateSecretWindow {
 					int option = JOptionPane.showConfirmDialog(frmSockergrodaCreate, "You have started writing a message.\nDo you want to discard it?", "Discard Message?", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					if(option == 0) {
 						frmSockergrodaCreate.dispose();
-						System.exit(1);
 					}
 				} else {
 					frmSockergrodaCreate.dispose();
-					System.exit(1);
 				}
 			}
 		});
@@ -227,7 +226,7 @@ public class CreateSecretWindow {
 		
 		JCheckBox usePasswordCheckBox = new JCheckBox("Require password");
 		usePasswordCheckBox.setSelected(true);
-		usePasswordCheckBox.setBounds(180, 255, 111, 23);
+		usePasswordCheckBox.setBounds(180, 255, 156, 23);
 		usePasswordCheckBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -296,23 +295,28 @@ public class CreateSecretWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				StorageManager.setAttribute("save_secrets", chckbxSaveSecret.isSelected());
+				if(!chckbxSaveSecret.isSelected() && !StorageManager.getBoolean("ignore_dont_save_secret_warning")) {
+					String[] options = {"Ignore", "Don't show this again"};
+					int option = JOptionPane.showOptionDialog(frmSockergrodaCreate, "You will not be able to delete this secret in the future if you don't save it.", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+					if(option == 1) {
+						StorageManager.setAttribute("ignore_dont_save_secret_warning", true);
+					}
+				}
 			}
 		});
 		chckbxSaveSecret.setBounds(82, 440, 135, 23);
 		frmSockergrodaCreate.getContentPane().add(chckbxSaveSecret);
 		
-		JButton btnBack = new JButton("Back");
+		JButton btnBack = new JButton("Cancel");
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(textArea.getText().length() > 0) {
 					int option = JOptionPane.showConfirmDialog(frmSockergrodaCreate, "You have started writing a message.\nDo you want to discard it?", "Discard Message?", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					if(option == 0) {
 						frmSockergrodaCreate.dispose();
-						MainWindow.display();
 					}
 				} else {
 					frmSockergrodaCreate.dispose();
-					MainWindow.display();
 				}
 			}
 		});
@@ -388,7 +392,7 @@ public class CreateSecretWindow {
 		frmSockergrodaCreate.getContentPane().add(separator_2);
 		
 		lblExpirationSummary = new JLabel();
-		lblExpirationSummary.setBounds(31, 373, 105, 14);
+		lblExpirationSummary.setBounds(31, 373, 143, 14);
 		frmSockergrodaCreate.getContentPane().add(lblExpirationSummary);
 		
 		JLabel lblWndTitle = new JLabel("Create a secret");

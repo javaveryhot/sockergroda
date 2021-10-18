@@ -42,7 +42,7 @@ public class PreUsageWarningWindow {
 	 */
 	private void initialize() {
 		frmSockergrodaPreUsage = new SGFrame();
-		frmSockergrodaPreUsage.setTitle("Sockergroda - Warning");
+		frmSockergrodaPreUsage.setTitle("Warning");
 		frmSockergrodaPreUsage.setResizable(false);
 		frmSockergrodaPreUsage.setBounds(100, 100, 500, 220);
 		frmSockergrodaPreUsage.setLocationRelativeTo(null);

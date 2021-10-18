@@ -1,7 +1,6 @@
 package sockergroda;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,7 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import sockergroda.enums.Images;
-import java.awt.Font;
 
 public class SecretCreatedWindow {
 
@@ -44,12 +42,12 @@ public class SecretCreatedWindow {
 	 */
 	private void initialize(int secretId, String password, long expiration, int expirationType) {
 		frmSockergrodaSecret = new SGFrame();
-		frmSockergrodaSecret.setTitle("Sockergroda - Secret Created");
+		frmSockergrodaSecret.setTitle("Secret Created");
 		frmSockergrodaSecret.setResizable(false);
 		frmSockergrodaSecret.setBounds(100, 100, 500, 160);
 		frmSockergrodaSecret.setLocationRelativeTo(null);
 		frmSockergrodaSecret.setIconImage(Images.ICON_32x32.getImage());
-		frmSockergrodaSecret.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaSecret.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmSockergrodaSecret.getContentPane().setLayout(null);
 		
 		JLabel lblSecretCreated = new JLabel("Your secret has been created:");
@@ -64,11 +62,10 @@ public class SecretCreatedWindow {
 		txtSecretId.setColumns(10);
 		
 		JButton btnCopy = new JButton("Copy");
-		btnCopy.setIcon(new ImageIcon(Images.SCISSORS_16x16.getImage()));
+		btnCopy.setIcon(new ImageIcon(Images.COPY_16x16.getImage()));
 		btnCopy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				StringSelection copyString = new StringSelection(txtSecretId.getText());
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(copyString, copyString);
+				Main.copyToClipboard(txtSecretId.getText());
 			}
 		});
 		btnCopy.setBounds(160, 40, 77, 23);
@@ -106,25 +103,18 @@ public class SecretCreatedWindow {
 		btnClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaSecret.dispose();
-				System.exit(1);
 			}
 		});
 		btnClose.setBounds(397, 86, 70, 23);
 		frmSockergrodaSecret.getContentPane().add(btnClose);
 		
-		JButton btnBack = new JButton("Back");
-		btnBack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaSecret.dispose();
-				MainWindow.display();
-			}
-		});
-		btnBack.setBounds(317, 86, 70, 23);
-		frmSockergrodaSecret.getContentPane().add(btnBack);
-		
-		JLabel lblSaved = new JLabel(StorageManager.getBoolean("save_secrets") ? "Saved to your secrets" : "");
+		JLabel lblSaved = new JLabel();
+		if(StorageManager.getBoolean("save_secrets")) {
+			lblSaved.setText("Saved to your secrets");
+			lblSaved.setIcon(new ImageIcon(Images.CORRECT_16x16.getImage()));
+		}
 		lblSaved.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblSaved.setBounds(317, 61, 150, 14);
+		lblSaved.setBounds(317, 65, 150, 14);
 		frmSockergrodaSecret.getContentPane().add(lblSaved);
 	}
 }

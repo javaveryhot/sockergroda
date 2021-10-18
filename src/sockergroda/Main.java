@@ -1,6 +1,13 @@
 package sockergroda;
 
 import java.awt.Desktop;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorEvent;
+import java.awt.datatransfer.FlavorListener;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,13 +21,15 @@ import org.json.JSONObject;
 import utils.VersionConverter;
 
 public class Main {
-	public static int versionInt = 106;
+	public static int versionInt = 107;
 	public static String versionName = VersionConverter.intToString(versionInt); // Only for visuals! Do not use for detection
 	public static String version = VersionConverter.intToString(versionInt, false);
 	public static String downloadUrl = "https://sockergroda.repl.co/download";
 	public static String helpUrl = "https://sockergroda.repl.co/help";
 	public static String reportIssueUrl = "https://github.com/javaveryhot/sockergroda/issues";
 	public static String gitHubUrl = "https://github.com/javaveryhot/sockergroda";
+	
+	public static long lastCopyAttempt = 0;
 	
 	public static void main(String[] args) {
 		StorageManager.createStorageFile();
@@ -41,6 +50,25 @@ public class Main {
 		if(!hasInternetConnection()) {
 			JOptionPane.showMessageDialog(null, "Could not connect to the internet.\nMake sure that you have an internet connection and try again.\nIt is required in order to use Sockergroda.", "No Internet Access", JOptionPane.ERROR_MESSAGE);
 		}
+		
+		
+		
+		FlavorListener clipboardListener = new FlavorListener() {
+			@Override
+			public void flavorsChanged(FlavorEvent e) {
+				try {
+					String newClipboard = ((String)Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor)).trim();
+					if(newClipboard.startsWith("<sg?") && newClipboard.endsWith(">") && System.currentTimeMillis() > Main.lastCopyAttempt + 5000) {
+						Main.updateLastCopyAttempt();
+						InspectSecretWindow.display(null, true);
+					}
+				} catch (HeadlessException | UnsupportedFlavorException | IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		};
+		
+		Toolkit.getDefaultToolkit().getSystemClipboard().addFlavorListener(clipboardListener);
 	}
 	
 	public static boolean hasInternetConnection() {
@@ -86,5 +114,15 @@ public class Main {
     	} catch(IOException e) {
     		e.printStackTrace();
     	}
+	}
+	
+	public static void updateLastCopyAttempt() {
+		lastCopyAttempt = System.currentTimeMillis();
+	}
+	
+	public static void copyToClipboard(String text) {
+		updateLastCopyAttempt();
+		StringSelection copyString = new StringSelection(text);
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(copyString, copyString);
 	}
 }

@@ -1,14 +1,13 @@
 package sockergroda;
 
 import java.awt.SystemColor;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.AbstractListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -61,9 +60,9 @@ public class StoredSecretsWindow {
 	private void initialize() {
 		frmSockergrodaStored = new SGFrame();
 		frmSockergrodaStored.setResizable(false);
-		frmSockergrodaStored.setTitle("Sockergroda - Saved Secrets");
-		frmSockergrodaStored.setBounds(100, 100, 570, 300);
-		frmSockergrodaStored.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaStored.setTitle("Saved Secrets");
+		frmSockergrodaStored.setBounds(100, 100, 550, 300);
+		frmSockergrodaStored.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    frmSockergrodaStored.setIconImage(Images.ICON_32x32.getImage());
 	    frmSockergrodaStored.setLocationRelativeTo(null);
 	    
@@ -97,12 +96,11 @@ public class StoredSecretsWindow {
 			}
 		}
 		
-	    JButton btnBack = new JButton("Back");
+	    JButton btnBack = new JButton("Close");
 	    btnBack.setBounds(10, 226, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaStored.dispose();
-				MainWindow.display();
 			}
 		});
 	    frmSockergrodaStored.getContentPane().setLayout(null);
@@ -146,12 +144,13 @@ public class StoredSecretsWindow {
 	    JScrollPane scrollPane = new JScrollPane(list);
 	    scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 	    scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-	    scrollPane.setBounds(10, 11, 529, 114);
+	    scrollPane.setBounds(10, 11, 509, 114);
 	    frmSockergrodaStored.getContentPane().add(scrollPane);
 	    
 	    btnDeleteSecret = new JButton("Delete");
+	    btnDeleteSecret.setIcon(new ImageIcon(Images.DESTROY_16x16.getImage()));
 	    btnDeleteSecret.setEnabled(false);
-	    btnDeleteSecret.setBounds(230, 226, 89, 23);
+	    btnDeleteSecret.setBounds(214, 226, 95, 23);
 	    btnDeleteSecret.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -178,8 +177,9 @@ public class StoredSecretsWindow {
 	    frmSockergrodaStored.getContentPane().add(btnDeleteSecret);
 	    
 	    btnAbandon = new JButton("Abandon");
+	    btnAbandon.setIcon(new ImageIcon(Images.DELETE_LOCALLY_16x16.getImage()));
 	    btnAbandon.setEnabled(false);
-	    btnAbandon.setBounds(120, 226, 89, 23);
+	    btnAbandon.setBounds(109, 226, 95, 23);
 	    btnAbandon.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -199,15 +199,16 @@ public class StoredSecretsWindow {
 	    frmSockergrodaStored.getContentPane().add(btnAbandon);
 	    
 	    btnOpenSecret = new JButton("Inspect");
+	    btnOpenSecret.setIcon(new ImageIcon(Images.KEY_16x16.getImage()));
 	    btnOpenSecret.setEnabled(false);
-	    btnOpenSecret.setBounds(340, 226, 89, 23);
+	    btnOpenSecret.setBounds(319, 226, 95, 23);
 	    btnOpenSecret.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String selectedSecretId = (String)storedSecrets.keySet().toArray()[list.getSelectedIndex()];
 				
 				frmSockergrodaStored.dispose();
-				InspectSecretWindow.display(selectedSecretId);
+				InspectSecretWindow.display(selectedSecretId, false);
 			}
 		});
 	    frmSockergrodaStored.getContentPane().add(btnOpenSecret);
@@ -234,18 +235,17 @@ public class StoredSecretsWindow {
 	    		return false;
 	    	}
 	    });
-	    table.setBounds(10, 136, 529, 79);
+	    table.setBounds(10, 136, 509, 79);
 	    frmSockergrodaStored.getContentPane().add(table);
 	    
 	    btnCopyId = new JButton("Copy ID");
+	    btnCopyId.setIcon(new ImageIcon(Images.COPY_16x16.getImage()));
 	    btnCopyId.setEnabled(false);
-	    btnCopyId.setBounds(450, 226, 89, 23);
+	    btnCopyId.setBounds(424, 226, 95, 23);
 	    btnCopyId.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				StringSelection selectedSecretId = new StringSelection("<sg?" + (String)storedSecrets.keySet().toArray()[list.getSelectedIndex()] + ">");
-				
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selectedSecretId, selectedSecretId);
+				Main.copyToClipboard("<sg?" + (String)storedSecrets.keySet().toArray()[list.getSelectedIndex()] + ">");
 			}
 		});
 	    frmSockergrodaStored.getContentPane().add(btnCopyId);

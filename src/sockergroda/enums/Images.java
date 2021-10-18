@@ -28,13 +28,15 @@ public enum Images {
 	TAG_16x16("icons/16x16/tag.png"),
 	SAVED_SECRETS_16x16("icons/16x16/saved_secrets.png"),
 	BELL_16x16("icons/16x16/bell.png"),
-	SCISSORS_16x16("icons/16x16/scissors.png"),
+	COPY_16x16("icons/16x16/copy.png"),
 	UPDATE_SUCCESSFUL_16x16("icons/16x16/update_successful.png"),
 	UPDATE_UNSUCCESSFUL_16x16("icons/16x16/update_unsuccessful.png"),
 	CORRECT_16x16("icons/16x16/correct.png"),
 	INCORRECT_16x16("icons/16x16/incorrect.png"),
 	EYE_16x16("icons/16x16/eye.png"),
-	TROUBLESHOOT_CONNECTION_16x16("icons/16x16/troubleshoot_connection.png");
+	TROUBLESHOOT_CONNECTION_16x16("icons/16x16/troubleshoot_connection.png"),
+	DESTROY_16x16("icons/16x16/bomb.png"),
+	DELETE_LOCALLY_16x16("icons/16x16/delete_locally.png");
 	
 	Image image;
 	private Images(String imageLocation) {

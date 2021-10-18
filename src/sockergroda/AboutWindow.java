@@ -41,19 +41,18 @@ public class AboutWindow {
 	private void initialize() {
 		frmSockergrodaAbout = new SGFrame();
 		frmSockergrodaAbout.setResizable(false);
-		frmSockergrodaAbout.setTitle("Sockergroda - About");
+		frmSockergrodaAbout.setTitle("About");
 		frmSockergrodaAbout.setBounds(100, 100, 380, 210);
-		frmSockergrodaAbout.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaAbout.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    frmSockergrodaAbout.setIconImage(Images.ICON_32x32.getImage());
 	    frmSockergrodaAbout.setLocationRelativeTo(null);
 	    frmSockergrodaAbout.getContentPane().setLayout(null);
 	    
-	    JButton btnBack = new JButton("Back");
+	    JButton btnBack = new JButton("Close");
 	    btnBack.setBounds(10, 136, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaAbout.dispose();
-				MainWindow.display();
 			}
 		});
 	    frmSockergrodaAbout.getContentPane().add(btnBack);
@@ -96,7 +95,6 @@ public class AboutWindow {
 	    btnLicense.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				frmSockergrodaAbout.dispose();
 				License.display();
 			}
 		});

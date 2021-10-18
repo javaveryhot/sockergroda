@@ -44,19 +44,18 @@ public class TroubleshootWindow {
 	private void initialize() {
 		frmSockergrodaTroubleshoot = new SGFrame();
 		frmSockergrodaTroubleshoot.setResizable(false);
-		frmSockergrodaTroubleshoot.setTitle("Sockergroda - Troubleshoot Connection");
+		frmSockergrodaTroubleshoot.setTitle("Troubleshoot Connection");
 		frmSockergrodaTroubleshoot.setBounds(100, 100, 360, 200);
-		frmSockergrodaTroubleshoot.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaTroubleshoot.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    frmSockergrodaTroubleshoot.setIconImage(Images.ICON_32x32.getImage());
 	    frmSockergrodaTroubleshoot.setLocationRelativeTo(null);
 	    frmSockergrodaTroubleshoot.getContentPane().setLayout(null);
 	    
-	    JButton btnBack = new JButton("Back");
+	    JButton btnBack = new JButton("Cancel");
 	    btnBack.setBounds(10, 126, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaTroubleshoot.dispose();
-				MainWindow.display();
 			}
 		});
 	    frmSockergrodaTroubleshoot.getContentPane().add(btnBack);

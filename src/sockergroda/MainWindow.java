@@ -1,5 +1,6 @@
 package sockergroda;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Image;
@@ -53,46 +54,44 @@ public class MainWindow {
   }
   
   private void initialize() {
-    this.frmSockergroda = new SGFrame();
-    this.frmSockergroda.setResizable(false);
-    this.frmSockergroda.setTitle("Sockergroda " + Main.versionName);
+    frmSockergroda = new SGFrame();
+    frmSockergroda.setResizable(false);
+    frmSockergroda.setTitle("Sockergroda " + Main.versionName);
     boolean adsRemoved = Main.hasRemovedAds();
-    this.frmSockergroda.setBounds(100, 100, 450, !adsRemoved ? 280 : 195);
-    this.frmSockergroda.setLocationRelativeTo(null);
-    this.frmSockergroda.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    this.frmSockergroda.setIconImage(Images.ICON_32x32.getImage());
-    this.frmSockergroda.getContentPane().setLayout(null);
+    frmSockergroda.setBounds(100, 100, 450, !adsRemoved ? 280 : 195);
+    frmSockergroda.setLocationRelativeTo(null);
+    frmSockergroda.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frmSockergroda.setIconImage(Images.ICON_32x32.getImage());
+    frmSockergroda.getContentPane().setLayout(null);
 
     JButton btnCreate = new JButton("Create");
     btnCreate.setToolTipText("Create a secret to be inspected by other people");
     btnCreate.setIcon(new ImageIcon(Images.CREATE_16x16.getImage()));
-    btnCreate.setBounds(100, 76, 105, 24);
+    btnCreate.setBounds(100, 71, 105, 24);
     btnCreate.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            MainWindow.this.frmSockergroda.dispose();
             CreateSecretWindow.display();
           }
     });
-    this.frmSockergroda.getContentPane().add(btnCreate);
+    frmSockergroda.getContentPane().add(btnCreate);
     
     
     JButton btnInspect = new JButton("Inspect");
     btnInspect.setToolTipText("Inspect a key that you have and see what it says");
     btnInspect.setIcon(new ImageIcon(Images.INSPECT_16x16.getImage()));
-    btnInspect.setBounds(216, 76, 105, 24);
+    btnInspect.setBounds(216, 71, 105, 24);
     btnInspect.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            MainWindow.this.frmSockergroda.dispose();
-            InspectSecretWindow.display();
-          }
+	      public void actionPerformed(ActionEvent e) {
+	        InspectSecretWindow.display(null, false);
+	      }
     });
-    this.frmSockergroda.getContentPane().add(btnInspect);
+    frmSockergroda.getContentPane().add(btnInspect);
 
     JLabel lblTitle = new JLabel("Sockergroda");
     lblTitle.setBounds(10, 0, 237, 47);
     lblTitle.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
     lblTitle.setFont(new Font("Segoe UI Historic", Font.PLAIN, 35));
-    this.frmSockergroda.getContentPane().add(lblTitle);
+    frmSockergroda.getContentPane().add(lblTitle);
     
     JLabel lblVersion = new JLabel(Main.versionName);
     lblVersion.setBounds(245, 27, 85, 14);
@@ -141,6 +140,13 @@ public class MainWindow {
     lblAdText.setBounds(81, 146, 340, 14);
     frmSockergroda.getContentPane().add(lblAdText);
     
+    JLabel lblCopyInspectInfo = new JLabel("Copy an ID somewhere for automatic inspection");
+    lblCopyInspectInfo.setIcon(new ImageIcon(Images.ABOUT_16x16.getImage()));
+    lblCopyInspectInfo.setForeground(Color.DARK_GRAY);
+    lblCopyInspectInfo.setFont(new Font("Tahoma", Font.PLAIN, 9));
+    lblCopyInspectInfo.setBounds(100, 96, 227, 14);
+    frmSockergroda.getContentPane().add(lblCopyInspectInfo);
+    
     JMenuBar menuBar = new JMenuBar();
     frmSockergroda.setJMenuBar(menuBar);
     
@@ -176,7 +182,6 @@ public class MainWindow {
     mntmStoredSecrets.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			frmSockergroda.dispose();
 			StoredSecretsWindow.display();
 		}
 	});
@@ -188,7 +193,6 @@ public class MainWindow {
     mntmRemoveAds.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			frmSockergroda.dispose();
 			RemoveAdvertisements.display();
 		}
 	});
@@ -211,13 +215,12 @@ public class MainWindow {
     mntmTroubleshoot.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
         	TroubleshootWindow.display();
-        	frmSockergroda.dispose();
         }
     });
     mnHelp.add(mntmTroubleshoot);
     mnHelp.add(mntmGitHub);
     
-    JMenuItem mntmCheckUpdate = new JMenuItem("Check for update...");
+    JMenuItem mntmCheckUpdate = new JMenuItem("Update...");
     mntmCheckUpdate.setIcon(new ImageIcon(Images.UPDATE_16x16.getImage()));
     mntmCheckUpdate.addActionListener(new ActionListener() {
 		@Override
@@ -241,7 +244,6 @@ public class MainWindow {
     mntmAbout.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			frmSockergroda.dispose();
 			AboutWindow.display();
 		}
 	});

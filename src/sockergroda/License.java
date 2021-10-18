@@ -41,19 +41,18 @@ public class License {
 	 */
 	private void initialize() {
 		frmSockergrodaLicense = new SGFrame();
-		frmSockergrodaLicense.setTitle("Sockergroda - License");
+		frmSockergrodaLicense.setTitle("License");
 		frmSockergrodaLicense.setBounds(100, 100, 850, 385);
-		frmSockergrodaLicense.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSockergrodaLicense.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    frmSockergrodaLicense.setIconImage(Images.ICON_32x32.getImage());
 	    frmSockergrodaLicense.setLocationRelativeTo(null);
 	    frmSockergrodaLicense.getContentPane().setLayout(null);
 	    
-	    JButton btnBack = new JButton("Back");
+	    JButton btnBack = new JButton("Close");
 	    btnBack.setBounds(10, 312, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaLicense.dispose();
-				AboutWindow.display();
 			}
 		});
 	    frmSockergrodaLicense.getContentPane().add(btnBack);

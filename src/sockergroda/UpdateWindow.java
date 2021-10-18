@@ -44,7 +44,7 @@ public class UpdateWindow {
 	private void initialize(int thisVersion, int latestVersion) {
 		frmSockergrodaUpdate = new SGFrame();
 		frmSockergrodaUpdate.setResizable(false);
-		frmSockergrodaUpdate.setTitle("Sockergroda - Update");
+		frmSockergrodaUpdate.setTitle("Update");
 		frmSockergrodaUpdate.setBounds(100, 100, 500, 250);
 		frmSockergrodaUpdate.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    frmSockergrodaUpdate.setIconImage(Images.ICON_32x32.getImage());
