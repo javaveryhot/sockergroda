@@ -13,6 +13,7 @@ public enum Images {
 	AD_SAMPLE("ad_sample.png"),
 	PLUS_16x16("icons/16x16/plus.png"),
 	MAGN_GLASS_16x16("icons/16x16/magnifying_glass.png"),
+	INIT_BANNER("sockergroda_banner.png"),
 	
 	KEY_16x16("icons/16x16/password.png"),
 	REPOSITORY_16x16("icons/16x16/repository.png"),
@@ -36,7 +37,14 @@ public enum Images {
 	EYE_16x16("icons/16x16/eye.png"),
 	TROUBLESHOOT_CONNECTION_16x16("icons/16x16/troubleshoot_connection.png"),
 	DESTROY_16x16("icons/16x16/bomb.png"),
-	DELETE_LOCALLY_16x16("icons/16x16/delete_locally.png");
+	DELETE_LOCALLY_16x16("icons/16x16/delete_locally.png"),
+	RESTART_16x16("icons/16x16/restart.png"),
+	MODIFY_API_SERVER_16x16("icons/16x16/modify_api_server.png"),
+	MALICIOUS_16x16("icons/16x16/malicious.png"),
+	EXPORT_CONFIG_16x16("icons/16x16/export_config.png"),
+	IMPORT_CONFIG_16x16("icons/16x16/import_config.png"),
+	MODERATOR_WAND_16x16("icons/16x16/moderator_wand.png"),
+	REFRESH_16x16("icons/16x16/refresh.png");
 	
 	Image image;
 	private Images(String imageLocation) {

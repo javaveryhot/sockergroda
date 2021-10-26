@@ -61,13 +61,8 @@ public class AboutWindow {
 	    separator_2.setBounds(10, 69, 355, 6);
 	    frmSockergrodaAbout.getContentPane().add(separator_2);
 	    
-	    JLabel lblVersion = new JLabel(Main.versionName);
-	    lblVersion.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-	    lblVersion.setBounds(245, 38, 85, 14);
-	    frmSockergrodaAbout.getContentPane().add(lblVersion);
-	    
-	    JLabel lblTitle = new JLabel("Sockergroda");
-	    lblTitle.setBounds(10, 11, 237, 47);
+	    JLabel lblTitle = new JLabel("About Sockergroda");
+	    lblTitle.setBounds(10, 11, 355, 47);
 	    lblTitle.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
 	    lblTitle.setFont(new Font("Segoe UI Historic", Font.PLAIN, 35));
 	    frmSockergrodaAbout.getContentPane().add(lblTitle);

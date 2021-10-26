@@ -63,9 +63,9 @@ public class RemoveAdvertisements {
 	    frmSockergrodaRemoveAds.getContentPane().add(textField);
 	    textField.setColumns(10);
 	    
-	    JLabel lblNewLabel = new JLabel("Enter a key given by the developer to remove advertisements:");
-	    lblNewLabel.setBounds(10, 12, 362, 14);
-	    frmSockergrodaRemoveAds.getContentPane().add(lblNewLabel);
+	    JLabel lblText = new JLabel("Key:");
+	    lblText.setBounds(10, 12, 362, 14);
+	    frmSockergrodaRemoveAds.getContentPane().add(lblText);
 	    
 	    JButton btnRemoveAds = new JButton("Remove Ads");
 	    btnRemoveAds.setBounds(10, 68, 110, 23);
@@ -86,6 +86,7 @@ public class RemoveAdvertisements {
 					if(APIManager.testRAKey(raKey)) {
 						Main.removeAds();
 						JOptionPane.showMessageDialog(frmSockergrodaRemoveAds, "Success! Advertisements have been removed.", "Advertisements Removed", JOptionPane.INFORMATION_MESSAGE);
+						frmSockergrodaRemoveAds.dispose();
 					} else {
 						JOptionPane.showMessageDialog(frmSockergrodaRemoveAds, "An invalid RA key was provided. Make sure that you wrote it correctly.", "Invalid Key", JOptionPane.ERROR_MESSAGE);
 					}

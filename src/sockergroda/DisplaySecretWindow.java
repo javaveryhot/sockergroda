@@ -4,14 +4,19 @@ import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.json.JSONObject;
 
 import sockergroda.enums.Images;
 import utils.TimeStrings;
@@ -24,9 +29,9 @@ public class DisplaySecretWindow {
 	/**
 	 * Launch the application.
 	 */
-	public static void display(String freeText, String title, long createdAt) {
+	public static void display(int secretId, String password, JSONObject secretJSON) {
 		try {
-			DisplaySecretWindow window = new DisplaySecretWindow(freeText, title, createdAt);
+			DisplaySecretWindow window = new DisplaySecretWindow(secretId, password, secretJSON);
 			window.frmSockergrodaInspecting.setVisible(true);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -36,14 +41,14 @@ public class DisplaySecretWindow {
 	/**
 	 * Create the application.
 	 */
-	public DisplaySecretWindow(String freeText, String title, long createdAt) {
-		initialize(freeText, title, createdAt);
+	public DisplaySecretWindow(int secretId, String password, JSONObject secretJSON) {
+		initialize(secretId, password, secretJSON);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize(String freeText, String title, long createdAt) {
+	private void initialize(int secretId, String password, JSONObject secretJSON) {
 		frmSockergrodaInspecting = new SGFrame();
 		frmSockergrodaInspecting.setTitle("Inspecting Secret");
 		frmSockergrodaInspecting.setResizable(false);
@@ -53,6 +58,9 @@ public class DisplaySecretWindow {
 		frmSockergrodaInspecting.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmSockergrodaInspecting.getContentPane().setLayout(null);
 		
+		String freeText = secretJSON.getString("freetext");
+		boolean isSecretExpiredFromUsage = secretJSON.getInt("inspections") == secretJSON.getInt("max_uses");
+		
 		TextArea textArea = new TextArea();
 		textArea.setFont(new Font("Monospaced", Font.BOLD, 12));
 		textArea.setEditable(false);
@@ -60,6 +68,7 @@ public class DisplaySecretWindow {
 		frmSockergrodaInspecting.getContentPane().add(textArea);
 		
 		JButton btnClose = new JButton("Close");
+		btnClose.setMnemonic('C');
 		btnClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaInspecting.dispose();
@@ -68,11 +77,11 @@ public class DisplaySecretWindow {
 		btnClose.setBounds(342, 265, 70, 23);
 		frmSockergrodaInspecting.getContentPane().add(btnClose);
 
-		JLabel lblCreatedAt = new JLabel(TimeStrings.getTimeString(System.currentTimeMillis() / 1000 - createdAt) + " ago");
+		JLabel lblCreatedAt = new JLabel(TimeStrings.getTimeString(System.currentTimeMillis() / 1000 - secretJSON.getLong("created_at")) + " ago");
 		lblCreatedAt.setBounds(10, 241, 134, 14);
 		frmSockergrodaInspecting.getContentPane().add(lblCreatedAt);
 		
-		JLabel lblTitle = new JLabel(title);
+		JLabel lblTitle = new JLabel(secretJSON.getString("title"));
 		lblTitle.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblTitle.setIcon(new ImageIcon(Images.EYE_16x16.getImage()));
 		lblTitle.setBounds(10, 11, 380, 23);
@@ -87,6 +96,7 @@ public class DisplaySecretWindow {
 		};
 		
 		chckbxMaskMode = new JCheckBox("Mask text");
+		chckbxMaskMode.setMnemonic('M');
 		chckbxMaskMode.addChangeListener(maskChange);
 		chckbxMaskMode.setBounds(10, 41, 134, 23);
 		frmSockergrodaInspecting.getContentPane().add(chckbxMaskMode);
@@ -103,6 +113,57 @@ public class DisplaySecretWindow {
 			}
 		});
 		frmSockergrodaInspecting.getContentPane().add(btnCopy);
+		
+		JButton btnReport = new JButton("Report malicious");
+		btnReport.setEnabled(!isSecretExpiredFromUsage);
+		btnReport.setToolTipText("Report abusive content");
+		btnReport.setIcon(new ImageIcon(Images.MALICIOUS_16x16.getImage()));
+		btnReport.setBounds(10, 265, 160, 23);
+		btnReport.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int confirm = JOptionPane.showConfirmDialog(frmSockergrodaInspecting, "The report will be made anonymously.\nDo you want to report the content of this secret?", "Report Content?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				
+				if(confirm == 0) {
+					int result = 0;
+	
+					try {
+						result = APIManager.reportSecret(secretId, password);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					
+					switch(result) {
+					case 0:
+						JOptionPane.showMessageDialog(frmSockergrodaInspecting, "Something went wrong while trying to report the content. It may have disappeared.", "Error", JOptionPane.ERROR_MESSAGE);
+						break;
+					case 1:
+						JOptionPane.showMessageDialog(frmSockergrodaInspecting, "This should not happen.\nSomehow the password is incorrect.", "Bad Password", JOptionPane.ERROR_MESSAGE);
+						break;
+					case 2:
+						JOptionPane.showMessageDialog(frmSockergrodaInspecting, "This content has already been reported!", "Already Reported", JOptionPane.ERROR_MESSAGE);
+						break;
+					case 3:
+						JOptionPane.showMessageDialog(frmSockergrodaInspecting, "The content has been reported.\nYou will not get a response from this.", "Content Reported", JOptionPane.INFORMATION_MESSAGE);
+						break;
+					}
+				}
+			}
+		});
+		frmSockergrodaInspecting.getContentPane().add(btnReport);
+		
+		JLabel lblExpiration = new JLabel();
+		lblExpiration.setHorizontalAlignment(SwingConstants.RIGHT);
+		switch(secretJSON.getInt("expire_type")) {
+		case 0:
+			lblExpiration.setText("Expires in " + TimeStrings.getTimeString(secretJSON.getLong("expire_date") - (System.currentTimeMillis() / 1000)));
+			break;
+		case 1:
+			lblExpiration.setText(secretJSON.getInt("inspections") + "/" + secretJSON.getInt("max_uses") + " uses");
+			break;
+		}
+		lblExpiration.setBounds(230, 241, 160, 14);
+		frmSockergrodaInspecting.getContentPane().add(lblExpiration);
 
 		maskChange.stateChanged(null);
 		

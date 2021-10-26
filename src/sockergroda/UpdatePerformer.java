@@ -1,5 +1,6 @@
 package sockergroda;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -27,7 +28,7 @@ public class UpdatePerformer {
 	
 	public UpdatePerformer(String preferredFileType) {
 		this.preferredFileType = preferredFileType;
-		this.currentOperation = "No operation is running currently";
+		this.currentOperation = "No operation is currently running";
 		this.currentOperationPercentage = 0;
 	}
 	
@@ -48,7 +49,6 @@ public class UpdatePerformer {
     	
     	
     	try {
-
     		this.setOperation("Checking the releases", 40);
 
     		String assetsUrl = APIManager.grabJSONArrayGet("https://api.github.com/repos/javaveryhot/sockergroda/releases").getJSONObject(0).getString("assets_url");
@@ -69,18 +69,21 @@ public class UpdatePerformer {
 			}
 			
 			if(selectedDownloadUrl != null) {
-
 				this.setOperation("Downloading " + selectedDownloadName, 70);
 
 				try(InputStream in = new URL(selectedDownloadUrl).openStream()) {
-					Path downloadPath = Path.of(System.getProperty("user.dir") + "\\" + selectedDownloadName);
+					Path downloadPath = Path.of(System.getProperty("user.dir") + File.separator + selectedDownloadName);
 					Files.copy(in, downloadPath);
 					
 					if(this.launchOnFinish) {
 						this.setOperation("Initiating the new version");
 						
-						ProcessBuilder executeNewFileBuilder = new ProcessBuilder("java", "-jar", downloadPath.toString());
-						executeNewFileBuilder.start();
+						if(preferredFileType == "application/java-archive") {
+							ProcessBuilder executeNewFileBuilder = new ProcessBuilder("java", "-jar", downloadPath.toString());
+							executeNewFileBuilder.start();
+						} else if(preferredFileType == "application/x-msdownload") {
+							Runtime.getRuntime().exec(downloadPath.getFileName().toString(), null, new File(System.getProperty("user.dir")));
+						}
 					}
 					
 					this.isSuccessful = true;

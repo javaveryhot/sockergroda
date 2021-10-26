@@ -308,6 +308,7 @@ public class CreateSecretWindow {
 		frmSockergrodaCreate.getContentPane().add(chckbxSaveSecret);
 		
 		JButton btnBack = new JButton("Cancel");
+		btnBack.setMnemonic('e');
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(textArea.getText().length() > 0) {
@@ -324,6 +325,7 @@ public class CreateSecretWindow {
 		frmSockergrodaCreate.getContentPane().add(btnBack);
 		
 		JButton btnCreate = new JButton("Create");
+		btnCreate.setMnemonic('C');
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int expirationType = getExpirationType();

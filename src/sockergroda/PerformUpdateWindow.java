@@ -118,7 +118,14 @@ public class PerformUpdateWindow {
 	    chckbxLaunch.setBounds(204, 142, 251, 23);
 	    frmSockergrodaUpdate.getContentPane().add(chckbxLaunch);
 	    
-	    updatePerformer = new UpdatePerformer("application/java-archive");
+	    String[] downloadOptions = {
+	    		"Jar",
+	    		"Exe"
+	    };
+	    
+	    Object selectedFileType = JOptionPane.showInputDialog(frmSockergrodaUpdate, "What file type would you like to download?", "Choose File Type", JOptionPane.PLAIN_MESSAGE, new ImageIcon(Images.ICON_16x16.getImage()), downloadOptions, downloadOptions[0]);
+	    
+	    updatePerformer = new UpdatePerformer(selectedFileType.toString() == downloadOptions[0] ? "application/java-archive" : "application/x-msdownload");
 	    updatePerformer.setLaunchOnFinish(true);
 	    
 	    updatePerformer.setDoneListener(new OperationListener() {

@@ -75,7 +75,6 @@ public class StoredSecretsWindow {
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(frmSockergrodaStored, "Cannot load your stored secret metadata!", "Cannot Load Metadata", JOptionPane.ERROR_MESSAGE);
 				frmSockergrodaStored.dispose();
-				MainWindow.display();
 				return;
 			}
 			
@@ -97,6 +96,7 @@ public class StoredSecretsWindow {
 		}
 		
 	    JButton btnBack = new JButton("Close");
+	    btnBack.setMnemonic('C');
 	    btnBack.setBounds(10, 226, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -148,6 +148,7 @@ public class StoredSecretsWindow {
 	    frmSockergrodaStored.getContentPane().add(scrollPane);
 	    
 	    btnDeleteSecret = new JButton("Delete");
+	    btnDeleteSecret.setMnemonic('D');
 	    btnDeleteSecret.setIcon(new ImageIcon(Images.DESTROY_16x16.getImage()));
 	    btnDeleteSecret.setEnabled(false);
 	    btnDeleteSecret.setBounds(214, 226, 95, 23);
@@ -164,7 +165,7 @@ public class StoredSecretsWindow {
 						storedSecrets.remove(selectedSecretId);
 						StorageManager.setAttribute("owned_secrets", storedSecrets);
 	
-						JOptionPane.showMessageDialog(frmSockergrodaStored, "The secret was deleted and cannot be accessed again.", "Secret Deleted", JOptionPane.INFORMATION_MESSAGE);
+						//JOptionPane.showMessageDialog(frmSockergrodaStored, "The secret was deleted and cannot be accessed again.", "Secret Deleted", JOptionPane.INFORMATION_MESSAGE);
 						frmSockergrodaStored.dispose();
 						StoredSecretsWindow.display();
 					} catch (IOException e1) {
@@ -177,6 +178,7 @@ public class StoredSecretsWindow {
 	    frmSockergrodaStored.getContentPane().add(btnDeleteSecret);
 	    
 	    btnAbandon = new JButton("Abandon");
+	    btnAbandon.setMnemonic('A');
 	    btnAbandon.setIcon(new ImageIcon(Images.DELETE_LOCALLY_16x16.getImage()));
 	    btnAbandon.setEnabled(false);
 	    btnAbandon.setBounds(109, 226, 95, 23);
@@ -190,7 +192,7 @@ public class StoredSecretsWindow {
 					storedSecrets.remove(selectedSecretId);
 					StorageManager.setAttribute("owned_secrets", storedSecrets);
 
-					JOptionPane.showMessageDialog(frmSockergrodaStored, "The secret was abandoned.", "Secret Abandoned", JOptionPane.INFORMATION_MESSAGE);
+					//JOptionPane.showMessageDialog(frmSockergrodaStored, "The secret was abandoned.", "Secret Abandoned", JOptionPane.INFORMATION_MESSAGE);
 					frmSockergrodaStored.dispose();
 					StoredSecretsWindow.display();
 				}
@@ -199,6 +201,7 @@ public class StoredSecretsWindow {
 	    frmSockergrodaStored.getContentPane().add(btnAbandon);
 	    
 	    btnOpenSecret = new JButton("Inspect");
+	    btnOpenSecret.setMnemonic('I');
 	    btnOpenSecret.setIcon(new ImageIcon(Images.KEY_16x16.getImage()));
 	    btnOpenSecret.setEnabled(false);
 	    btnOpenSecret.setBounds(319, 226, 95, 23);
@@ -239,6 +242,7 @@ public class StoredSecretsWindow {
 	    frmSockergrodaStored.getContentPane().add(table);
 	    
 	    btnCopyId = new JButton("Copy ID");
+	    btnCopyId.setMnemonic('C');
 	    btnCopyId.setIcon(new ImageIcon(Images.COPY_16x16.getImage()));
 	    btnCopyId.setEnabled(false);
 	    btnCopyId.setBounds(424, 226, 95, 23);

@@ -107,6 +107,7 @@ public class InspectSecretWindow {
 		frmSockergrodaInspect.getContentPane().add(passwordField);
 		
 		btnInspect = new JButton("Inspect");
+		btnInspect.setMnemonic('n');
 		btnInspect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String rawSecretId = "";
@@ -119,24 +120,22 @@ public class InspectSecretWindow {
 
 				if(rawSecretId.length() == 0) {
 					JOptionPane.showMessageDialog(frmSockergrodaInspect, "You must give a valid ID to inspect! It must be a plain number or a formatted ID.", "Bad ID", JOptionPane.ERROR_MESSAGE);
+					txtId.grabFocus();
 					return;
 				}
 				
 				String password = new String(passwordField.getPassword());
-				int rawSecretIdInt = Integer.parseInt(rawSecretId);
+				long rawSecretIdLong = Long.parseLong(rawSecretId);
 				try {
-					JSONObject jsonResponse = APIManager.inspectSecret(rawSecretIdInt, password);
+					JSONObject jsonResponse = APIManager.inspectSecret(rawSecretIdLong, password);
 					int code = jsonResponse.getInt("code");
 					if(code != 2) {
 						// Code 0 is invalid ID and 1 is bad password
 						JOptionPane.showMessageDialog(frmSockergrodaInspect, code == 0 ? "There is no secret with such ID.\nIt has either expired or never existed." : "Incorrect password for secret.", code == 0 ? "Bad ID" : "Bad Password", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					String freeText = jsonResponse.getString("freetext");
-					String title = jsonResponse.getString("title");
-					long createdAt = jsonResponse.getLong("created_at");
 					frmSockergrodaInspect.dispose();
-					DisplaySecretWindow.display(freeText, title, createdAt);
+					DisplaySecretWindow.display(Math.toIntExact(rawSecretIdLong), password, jsonResponse);
 				} catch (IOException e1) {
 					JOptionPane.showMessageDialog(frmSockergrodaInspect, "An error occured whilst trying to connect to the server. Please try again later.", "Server Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -157,6 +156,7 @@ public class InspectSecretWindow {
 		});
 		
 		JButton btnCancel = new JButton("Cancel");
+		btnCancel.setMnemonic('e');
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaInspect.dispose();
@@ -207,9 +207,9 @@ public class InspectSecretWindow {
 		}
 
 		if(rawSecretId.length() != 0) {
-			int rawSecretIdInt = Integer.parseInt(rawSecretId);
+			long rawSecretIdLong = Long.parseLong(rawSecretId);
 			try {
-				JSONObject jsonResponse = APIManager.checkSecret(rawSecretIdInt);
+				JSONObject jsonResponse = APIManager.checkSecret(rawSecretIdLong);
 				validMode = jsonResponse.getBoolean("valid");
 				passwordless = jsonResponse.getBoolean("passwordless");
 			} catch (IOException e) {

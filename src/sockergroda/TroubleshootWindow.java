@@ -51,7 +51,7 @@ public class TroubleshootWindow {
 	    frmSockergrodaTroubleshoot.setLocationRelativeTo(null);
 	    frmSockergrodaTroubleshoot.getContentPane().setLayout(null);
 	    
-	    JButton btnBack = new JButton("Cancel");
+	    JButton btnBack = new JButton("Close");
 	    btnBack.setBounds(10, 126, 89, 23);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

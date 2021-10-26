@@ -18,7 +18,7 @@ import org.json.JSONObject;
 public class StorageManager {
 	private static URL getStorageURL() {
 		try {
-			return new URL("file:///" + System.getProperty("user.home") + "\\sockergroda_storage.json");
+			return new URL("file:///" + System.getProperty("user.home") + File.separator + "sockergroda_storage.json");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -26,7 +26,7 @@ public class StorageManager {
 		return null;
 	}
 	
-	private static File getStorageFile() {
+	public static File getStorageFile() {
 		return new File(getStorageURL().getPath());
 	}
 	
@@ -58,7 +58,7 @@ public class StorageManager {
 		setStorage(defaultSettings);
 	}
 	
-	private static JSONObject getStorage() {
+	public static JSONObject getStorage() {
 	    StringBuilder fullContents = new StringBuilder();
 	    
     	try {
@@ -85,13 +85,19 @@ public class StorageManager {
     	}
 	}
 	
-	private static void setStorage(JSONObject jsonObject) {
+	public static void setStorage(JSONObject jsonObject) {
 		setFileContents(jsonObject.toString());
 	}
 	
 	public static void setAttribute(String key, Object value) {
 		JSONObject theStorage = getStorage();
 		theStorage.put(key, value);
+		setStorage(theStorage);
+	}
+	
+	public static void deleteAttribute(String key) {
+		JSONObject theStorage = getStorage();
+		theStorage.remove(key);
 		setStorage(theStorage);
 	}
 	

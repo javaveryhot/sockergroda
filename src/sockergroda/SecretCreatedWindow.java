@@ -50,7 +50,7 @@ public class SecretCreatedWindow {
 		frmSockergrodaSecret.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmSockergrodaSecret.getContentPane().setLayout(null);
 		
-		JLabel lblSecretCreated = new JLabel("Your secret has been created:");
+		JLabel lblSecretCreated = new JLabel("Secret has been generated:");
 		lblSecretCreated.setBounds(25, 24, 212, 14);
 		frmSockergrodaSecret.getContentPane().add(lblSecretCreated);
 		
@@ -95,11 +95,12 @@ public class SecretCreatedWindow {
 			});
 			toggleShowPasswordCheckBox.doClick();
 			toggleShowPasswordCheckBox.doClick();
-			toggleShowPasswordCheckBox.setBounds(160, 88, 100, 23);
+			toggleShowPasswordCheckBox.setBounds(160, 88, 130, 23);
 			frmSockergrodaSecret.getContentPane().add(toggleShowPasswordCheckBox);
 		}
 		
 		JButton btnClose = new JButton("Close");
+		btnClose.setMnemonic('C');
 		btnClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frmSockergrodaSecret.dispose();

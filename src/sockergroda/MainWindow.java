@@ -10,8 +10,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Base64;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +27,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -28,7 +35,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import javax.swing.filechooser.FileFilter;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import sockergroda.enums.Images;
@@ -63,20 +72,22 @@ public class MainWindow {
     frmSockergroda.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frmSockergroda.setIconImage(Images.ICON_32x32.getImage());
     frmSockergroda.getContentPane().setLayout(null);
-
+    
     JButton btnCreate = new JButton("Create");
+    btnCreate.setMnemonic('C');
     btnCreate.setToolTipText("Create a secret to be inspected by other people");
     btnCreate.setIcon(new ImageIcon(Images.CREATE_16x16.getImage()));
     btnCreate.setBounds(100, 71, 105, 24);
     btnCreate.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            CreateSecretWindow.display();
+        	  CreateSecretWindow.display();
           }
     });
     frmSockergroda.getContentPane().add(btnCreate);
     
     
     JButton btnInspect = new JButton("Inspect");
+    btnInspect.setMnemonic('n');
     btnInspect.setToolTipText("Inspect a key that you have and see what it says");
     btnInspect.setIcon(new ImageIcon(Images.INSPECT_16x16.getImage()));
     btnInspect.setBounds(216, 71, 105, 24);
@@ -88,13 +99,13 @@ public class MainWindow {
     frmSockergroda.getContentPane().add(btnInspect);
 
     JLabel lblTitle = new JLabel("Sockergroda");
-    lblTitle.setBounds(10, 0, 237, 47);
+    lblTitle.setBounds(10, 0, 270, 47);
     lblTitle.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
-    lblTitle.setFont(new Font("Segoe UI Historic", Font.PLAIN, 35));
+    lblTitle.setFont(new Font("Lucida Bright", Font.PLAIN, 35));
     frmSockergroda.getContentPane().add(lblTitle);
     
     JLabel lblVersion = new JLabel(Main.versionName);
-    lblVersion.setBounds(245, 27, 85, 14);
+    lblVersion.setBounds(265, 26, 60, 14);
     lblVersion.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
     frmSockergroda.getContentPane().add(lblVersion);
     
@@ -150,7 +161,69 @@ public class MainWindow {
     JMenuBar menuBar = new JMenuBar();
     frmSockergroda.setJMenuBar(menuBar);
     
+    JMenu mnMain = new JMenu("Home");
+    mnMain.setMnemonic('e');
+    menuBar.add(mnMain);
+    
+    JMenuItem mntmCreateSecret = new JMenuItem("Create secret...");
+    mntmCreateSecret.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			CreateSecretWindow.display();
+		}
+	});
+    mntmCreateSecret.setIcon(new ImageIcon(Images.CREATE_16x16.getImage()));
+    mnMain.add(mntmCreateSecret);
+    
+    JMenuItem mntmInspectSecret = new JMenuItem("Inspect secret...");
+    mntmInspectSecret.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			InspectSecretWindow.display(null, false);
+		}
+	});
+    mntmInspectSecret.setIcon(new ImageIcon(Images.INSPECT_16x16.getImage()));
+    mnMain.add(mntmInspectSecret);
+    
+    JMenuItem mntmStoredSecrets = new JMenuItem("Saved secrets...");
+    mntmStoredSecrets.setMnemonic('S');
+    mntmStoredSecrets.setIcon(new ImageIcon(Images.SAVED_SECRETS_16x16.getImage()));
+    mntmStoredSecrets.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			StoredSecretsWindow.display();
+		}
+	});
+    mnMain.add(mntmStoredSecrets);
+    
+    JMenuItem mntmCheckUpdate = new JMenuItem("Update...");
+    mntmCheckUpdate.setIcon(new ImageIcon(Images.UPDATE_16x16.getImage()));
+    mntmCheckUpdate.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Main.displayUpdate(false);
+		}
+	});
+    
+    JSeparator separator = new JSeparator();
+    mnMain.add(separator);
+    mnMain.add(mntmCheckUpdate);
+    
+    JMenuItem mntmRestart = new JMenuItem("Restart");
+    mntmRestart.setIcon(new ImageIcon(Images.RESTART_16x16.getImage()));
+    mntmRestart.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			frmSockergroda.dispose();
+			Runtime.getRuntime().gc();
+			Main.main(null);
+		}
+	});
+    mntmRestart.setMnemonic('R');
+    mnMain.add(mntmRestart);
+    
     JMenu mnConfig = new JMenu("Configuration");
+    mnConfig.setMnemonic('f');
     menuBar.add(mnConfig);
     
     JMenuItem mntmResetConfig = new JMenuItem("Reset configuration...");
@@ -176,16 +249,6 @@ public class MainWindow {
 			StorageManager.setAttribute("automatic_update_check", chckbxmntmAutomaticUpdateChecker.isSelected());
 		}
 	});
-    
-    JMenuItem mntmStoredSecrets = new JMenuItem("Saved secrets...");
-    mntmStoredSecrets.setIcon(new ImageIcon(Images.SAVED_SECRETS_16x16.getImage()));
-    mntmStoredSecrets.addActionListener(new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			StoredSecretsWindow.display();
-		}
-	});
-    mnConfig.add(mntmStoredSecrets);
     mnConfig.add(chckbxmntmAutomaticUpdateChecker);
     
     JMenuItem mntmRemoveAds = new JMenuItem("Remove advertisements...");
@@ -196,10 +259,119 @@ public class MainWindow {
 			RemoveAdvertisements.display();
 		}
 	});
+    
+    JMenuItem mntmModifyAPIServerHost = new JMenuItem("Modify API server host...");
+    mntmModifyAPIServerHost.setIcon(new ImageIcon(Images.MODIFY_API_SERVER_16x16.getImage()));
+    mntmModifyAPIServerHost.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ModifyAPIServer.display();
+		}
+	});
+    mnConfig.add(mntmModifyAPIServerHost);
     mnConfig.add(mntmRemoveAds);
+    
+    JSeparator separator_1 = new JSeparator();
+    mnConfig.add(separator_1);
+    
+    JMenuItem mntmExportConfig = new JMenuItem("Export configuration...");
+    mntmExportConfig.setIcon(new ImageIcon(Images.EXPORT_CONFIG_16x16.getImage()));
+    mntmExportConfig.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser exportingFile = new JFileChooser();
+
+			FileFilter fileFilter = new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "Sockergroda Configuration File, JSON";
+				}
+				@Override
+				public boolean accept(File f) {
+					return f.getAbsolutePath().endsWith(".json");
+				}
+			};
+			exportingFile.setFileFilter(fileFilter);
+
+			File selectedFile = new File("SockergrodaConfiguration.json");
+			exportingFile.setSelectedFile(selectedFile);
+			int response = exportingFile.showSaveDialog(frmSockergroda);
+			if(response == JFileChooser.APPROVE_OPTION) {
+				File saveFile = exportingFile.getSelectedFile();
+				try {
+					saveFile.createNewFile();
+			    	BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile));
+			    	writer.write(StorageManager.getStorage().toString());
+			    	writer.close();
+			    	JOptionPane.showMessageDialog(frmSockergroda, "The configuration file has been exported!", "Configuration Exported", JOptionPane.INFORMATION_MESSAGE);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	});
+    mnConfig.add(mntmExportConfig);
+    
+    JMenuItem mntmImportConfig = new JMenuItem("Import configuration...");
+    mntmImportConfig.setIcon(new ImageIcon(Images.IMPORT_CONFIG_16x16.getImage()));
+    mntmImportConfig.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser chooseConfig = new JFileChooser();
+			FileFilter fileFilter = new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "Sockergroda Configuration File, JSON";
+				}
+				@Override
+				public boolean accept(File f) {
+					return f.getAbsolutePath().endsWith(".json");
+				}
+			};
+			chooseConfig.setFileFilter(fileFilter);
+			chooseConfig.setMultiSelectionEnabled(false);
+			int response = chooseConfig.showOpenDialog(frmSockergroda);
+			
+			if(response == JFileChooser.APPROVE_OPTION) {
+				chooseConfig.getSelectedFile();
+				
+			    StringBuilder fullContents = new StringBuilder();
+			    
+		    	try {
+		    		InputStream inputStream = chooseConfig.getSelectedFile().toURI().toURL().openStream();
+
+		    		String tempLine = null;
+		    		
+		    		if(inputStream != null) {
+		    			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		    			while((tempLine = reader.readLine()) != null) {
+		    				fullContents.append(tempLine.trim());
+		    			}
+		    		}
+
+		    	    inputStream.close();
+			    } catch(IOException e1) {
+			    	e1.printStackTrace();
+			    }
+		    	
+		    	int confirmOverwrite = JOptionPane.showConfirmDialog(frmSockergroda, "Current configuration will be overwritten, continue?\nYou can make a backup beforehand.", "Overwrite Configuration", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		    	
+		    	if(confirmOverwrite == 0) {
+			    	try {
+			    		StorageManager.setStorage(new JSONObject(fullContents.toString()));
+			    		JOptionPane.showMessageDialog(frmSockergroda, "The configuration has been imported.\nPlease restart the program for full effect.", "Configuration Imported", JOptionPane.INFORMATION_MESSAGE);
+			    	} catch(JSONException je) {
+			    		JOptionPane.showMessageDialog(frmSockergroda, "An error occured when trying to load the configuration file.\nThe configuration may be invalid.", "Cannot Load Configuration File", JOptionPane.ERROR_MESSAGE);
+			    	}
+		    	}
+			}
+		}
+	});
+    mnConfig.add(mntmImportConfig);
     mnConfig.add(mntmResetConfig);
     
     JMenu mnHelp = new JMenu("Help");
+    mnHelp.setMnemonic('H');
     menuBar.add(mnHelp);
     
     JMenuItem mntmGitHub = new JMenuItem("GitHub repository");
@@ -220,15 +392,6 @@ public class MainWindow {
     mnHelp.add(mntmTroubleshoot);
     mnHelp.add(mntmGitHub);
     
-    JMenuItem mntmCheckUpdate = new JMenuItem("Update...");
-    mntmCheckUpdate.setIcon(new ImageIcon(Images.UPDATE_16x16.getImage()));
-    mntmCheckUpdate.addActionListener(new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Main.displayUpdate(false);
-		}
-	});
-    
     JMenuItem mntmReportIssue = new JMenuItem("Report an issue");
     mntmReportIssue.setIcon(new ImageIcon(Images.ISSUE_16x16.getImage()));
     mntmReportIssue.addActionListener(new ActionListener() {
@@ -237,7 +400,6 @@ public class MainWindow {
         }
     });
     mnHelp.add(mntmReportIssue);
-    mnHelp.add(mntmCheckUpdate);
     
     JMenuItem mntmAbout = new JMenuItem("About Sockergroda...");
     mntmAbout.setIcon(new ImageIcon(Images.ABOUT_16x16.getImage()));
@@ -248,6 +410,21 @@ public class MainWindow {
 		}
 	});
     mnHelp.add(mntmAbout);
+    
+    JMenu mnExtras = new JMenu("Extras");
+    mnExtras.setMnemonic('x');
+    menuBar.add(mnExtras);
+    
+    JMenuItem mntmModeratorDashboard = new JMenuItem("Moderator dashboard...");
+    mntmModeratorDashboard.setIcon(new ImageIcon(Images.MODERATOR_WAND_16x16.getImage()));
+    mntmModeratorDashboard.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ModeratorLogInWindow.display();
+		}
+	});
+    mntmModeratorDashboard.setMnemonic('d');
+    mnExtras.add(mntmModeratorDashboard);
     
     if(!Main.hasRemovedAds()) {
 	    final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();

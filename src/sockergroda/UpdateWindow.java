@@ -87,6 +87,7 @@ public class UpdateWindow {
 	    frmSockergrodaUpdate.getContentPane().add(lblDescription);
 	    
 	    JCheckBox chckbxAutomaticUpdateCheck = new JCheckBox("Automatic update checks");
+	    chckbxAutomaticUpdateCheck.setToolTipText("Occasionally looks for a newer version and prompts you if one exists");
 	    chckbxAutomaticUpdateCheck.setSelected(StorageManager.getBoolean("automatic_update_check"));
 	    chckbxAutomaticUpdateCheck.addActionListener(new ActionListener() {
 			@Override
