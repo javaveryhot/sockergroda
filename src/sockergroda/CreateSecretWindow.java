@@ -1,6 +1,7 @@
 package sockergroda;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -10,7 +11,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.ButtonGroup;
@@ -30,11 +30,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.json.JSONObject;
-
 import sockergroda.enums.Images;
+import utils.APIResponse;
 import utils.TimeStrings;
-import java.awt.Font;
 
 public class CreateSecretWindow {
 
@@ -365,22 +363,25 @@ public class CreateSecretWindow {
 					title = null;
 				}
 				
-				try {
-					JSONObject secret = APIManager.createSecret(freeText, password, title, expiresAfter, expirationType);
-					if(secret.getInt("code") != 0) {
+				// Do the request
+				
+				APIResponse response = APIManager.createSecret(freeText, password, title, expiresAfter, expirationType);
+
+				if(response.isRequestSuccessful()) {
+					if(response.getCode() != 0) {
 						if(chckbxSaveSecret.isSelected()) {
 							Map<String, Object> storedSecrets = StorageManager.getJSOMap("owned_secrets");
-							storedSecrets.put(String.valueOf(secret.getInt("secret_id")), secret.getString("owner_key"));
+							storedSecrets.put(String.valueOf(response.getIntValue("secret_id")), response.getStringValue("owner_key"));
 							StorageManager.setAttribute("owned_secrets", storedSecrets);
 						}
 						
 						frmSockergrodaCreate.dispose();
-						SecretCreatedWindow.display(secret.getInt("secret_id"), password, expiresAfter, expirationType);
+						SecretCreatedWindow.display(response.getIntValue("secret_id"), password, expiresAfter, expirationType);
 					} else {
 						JOptionPane.showMessageDialog(frmSockergrodaCreate, "Oops! The server denied your request.\nYour Sockergroda version is probably outdated.\nIf you are running the latest version, please report this!", "Request Denied", JOptionPane.ERROR_MESSAGE);
 						btnCreate.setEnabled(true);
 					}
-				} catch (IOException e1) {
+				} else {
 					JOptionPane.showMessageDialog(frmSockergrodaCreate, "An error occured whilst trying to connect to the server. Please try again later.", "Server Error", JOptionPane.ERROR_MESSAGE);
 					btnCreate.setEnabled(true);
 				}

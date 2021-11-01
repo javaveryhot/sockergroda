@@ -82,7 +82,7 @@ public class TroubleshootWindow {
 	
 	private void performTests() {
 		addToTestList("Internet connection", Main.hasInternetConnection());
-		addToTestList("API server connection test", APIManager.testSockergrodaAPI());
+		addToTestList("API server connection test", APIManager.testSockergrodaAPI().getCode() == 1);
 	}
 	
 	private void addToTestList(String testContext, boolean successful) {

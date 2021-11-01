@@ -11,230 +11,103 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import utils.APIResponse;
+import utils.FastJSON;
+
 public class APIManager {
-	public static JSONObject createSecret(String freeText, String password, String title, long expiration, int expirationType) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/create_secret");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("freetext", freeText);
-		jsonInput.append("password", password);
-		jsonInput.append("title", title);
-		jsonInput.append("expire", expiration);
-		jsonInput.append("expire_type", expirationType);
-		jsonInput.append("author", Main.ipAddress);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
+	private static APIResponse doAPIRequest(String name, FastJSON parameters, boolean abandon) {
+		try {
+			URL requestUrl = new URL(Main.hostNameAPI + "/" + name);
+			HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type", "application/json; utf-8");
+			connection.setRequestProperty("Accept", "application/json");
+			connection.setDoOutput(true);
+			
+			if(parameters != null) {
+				try(OutputStream outputStream = connection.getOutputStream()) {
+				    byte[] input = parameters.produce().toString().getBytes("utf-8");
+				    outputStream.write(input, 0, input.length);
+				}
+			}
+			
+			try(BufferedReader bufferedReader = new BufferedReader(
+					  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+				if(!abandon) {
+				    StringBuilder fullResponse = new StringBuilder();
+				    String tempResponse = null;
+				    while((tempResponse = bufferedReader.readLine()) != null) {
+				    	fullResponse.append(tempResponse.trim());
+				    }
+				    return new APIResponse(new JSONObject(fullResponse.toString()));
+				} else {
+					return null;
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+				return new APIResponse(null);
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+			return new APIResponse(null);
 		}
 	}
-
-	public static JSONObject inspectSecret(long secretId, String password) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/inspect_secret");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("id", secretId);
-		jsonInput.append("password", password);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
-		}
+	
+	public static APIResponse createSecret(String freeText, String password, String title, long expiration, int expirationType) {
+		return doAPIRequest("create_secret", new FastJSON(new Object[] {
+			"freetext", freeText,
+			"password", password,
+			"title", title,
+			"expire", expiration,
+			"expire_type", expirationType,
+			"author", Main.ipAddress
+		}), false);
 	}
 
-	public static JSONObject checkSecret(long secretId) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/check_secret");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("id", secretId);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
-		}
+	public static APIResponse inspectSecret(long secretId, String password) {
+		return doAPIRequest("inspect_secret", new FastJSON(new Object[] {
+			"id", secretId,
+			"password", password
+		}), false);
 	}
 
-	public static JSONObject grabAdvertisement() throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/grab_advertisement");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
-		}
+	public static APIResponse checkSecret(long secretId) {
+		return doAPIRequest("check_secret", new FastJSON(new Object[] {
+			"id", secretId
+		}), false);
+	}
+
+	public static APIResponse grabAdvertisement() {
+		return doAPIRequest("grab_advertisement", null, false);
 	}
 	
-	public static void registerAdvertisementClicked(String id) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/click_advertisement");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("id", id);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8")); // Waits for the server to receive the request
+	public static void registerAdvertisementClicked(String id) {
+		doAPIRequest("click_advertisement", new FastJSON(new Object[] {
+			"id", id
+		}), true);
 	}
 	
-	public static JSONObject grabVersionData() throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/grab_version_data");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
-		}
+	public static APIResponse grabVersionData() {
+		return doAPIRequest("grab_version_data", null, false);
 	}
 	
-	public static boolean testRAKey(int key) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/check_rakey");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("key", key);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString()).getBoolean("valid");
-		}
+	public static boolean testRAKey(int key) {
+		return doAPIRequest("check_rakey", new FastJSON(new Object[] {
+			"key", key
+		}), false).getBooleanValue("valid");
 	}
 	
-	public static void deleteSecret(String id, String ownerKey) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/delete_secret");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("id", Integer.parseInt(id));
-		jsonInput.append("owner_key", ownerKey);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8")); // Waits for the server to receive the request
+	public static APIResponse deleteSecret(int id, String ownerKey) {
+		return doAPIRequest("delete_secret", new FastJSON(new Object[] {
+			"id", id,
+			"owner_key", ownerKey
+		}), false);
 	}
 	
-	public static JSONObject grabStackedMetadata(Map<String, Object> stackedMap) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/grab_metadata");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("stacked_secrets", stackedMap);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
-		}
+	public static APIResponse grabStackedMetadata(Map<String, Object> stackedMap) {
+		return doAPIRequest("grab_metadata", new FastJSON(new Object[] {
+			"stacked_secrets", stackedMap
+		}), false);
 	}
 	
 	public static JSONArray grabJSONArrayGet(String url) throws IOException {
@@ -256,207 +129,51 @@ public class APIManager {
 		}
 	}
 	
-	public static boolean testSockergrodaAPI() {
-		try {
-			URL requestUrl = new URL(Main.hostNameAPI + "/connection_test");
-			HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "application/json; utf-8");
-			connection.setRequestProperty("Accept", "application/json");
-			connection.setDoOutput(true);
-			connection.setConnectTimeout(15000);
-			
-			try(BufferedReader bufferedReader = new BufferedReader(
-					  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-			    StringBuilder fullResponse = new StringBuilder();
-			    String tempResponse = null;
-			    while((tempResponse = bufferedReader.readLine()) != null) {
-			    	fullResponse.append(tempResponse.trim());
-			    }
-			    return new JSONObject(fullResponse.toString()).getInt("code") == 1;
-			}
-		} catch(IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+	public static APIResponse testSockergrodaAPI() {
+		return doAPIRequest("connection_test", null, false);
 	}
 	
-	public static JSONObject isAddressOk() throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/address_tester");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("address", Main.ipAddress);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
-		}
+	public static APIResponse isAddressOk() {
+		return doAPIRequest("address_tester", new FastJSON(new Object[] {
+			"address", Main.ipAddress
+		}), false);
 	}
 	
-	/**
-	 * Reports a secret.
-	 * @param secretId
-	 * @param password
-	 * @return The integer code result of the request.<br>Invalid secret (0), bad password (1), duplicate request (2) and success (3).
-	 * @throws IOException
-	 */
-	public static int reportSecret(int secretId, String password) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/report_content");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("id", secretId);
-		jsonInput.append("password", password);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString()).getInt("code");
-		}
+	public static APIResponse reportSecret(int secretId, String password) {
+		return doAPIRequest("report_content", new FastJSON(new Object[] {
+			"id", secretId,
+			"password", password
+		}), false);
 	}
 	
-	public static boolean moderatorLogin(String moderatorKey) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/moderator_login");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("mod_key", moderatorKey);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString()).getInt("code") == 1;
-		}
+	public static APIResponse moderatorLogin(String moderatorKey) {
+		return doAPIRequest("moderator_login", new FastJSON(new Object[] {
+			"mod_key", moderatorKey
+		}), false);
 	}
 	
-	public static JSONObject moderatorGrabReports(String moderatorKey) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/moderator_grab_reports");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("mod_key", moderatorKey);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString());
-		}
+	public static APIResponse moderatorGrabReports(String moderatorKey) {
+		return doAPIRequest("moderator_grab_reports", new FastJSON(new Object[] {
+			"mod_key", moderatorKey
+		}), false);
 	}
 	
-	public static boolean moderatorDenyReport(String moderatorKey, int reportId) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/moderator_deny_report");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("mod_key", moderatorKey);
-		jsonInput.append("report_id", reportId);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString()).getInt("code") == 1;
-		}
+	public static APIResponse moderatorDenyReport(String moderatorKey, int reportId) {
+		return doAPIRequest("moderator_deny_report", new FastJSON(new Object[] {
+			"mod_key", moderatorKey,
+			"report_id", reportId
+		}), false);
 	}
 	
-	public static boolean moderatorConfirmReport(String moderatorKey, int reportId, String reason) throws IOException {
-		URL requestUrl = new URL(Main.hostNameAPI + "/moderator_confirm_report");
-		HttpURLConnection connection = (HttpURLConnection)requestUrl.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json; utf-8");
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setDoOutput(true);
-		
-		JSONObject jsonInput = new JSONObject();
-		jsonInput.append("mod_key", moderatorKey);
-		jsonInput.append("report_id", reportId);
-		jsonInput.append("reason", reason);
-		String jsonInputString = jsonInput.toString();
-		
-		try(OutputStream outputStream = connection.getOutputStream()) {
-		    byte[] input = jsonInputString.getBytes("utf-8");
-		    outputStream.write(input, 0, input.length);
-		}
-		
-		try(BufferedReader bufferedReader = new BufferedReader(
-				  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		    StringBuilder fullResponse = new StringBuilder();
-		    String tempResponse = null;
-		    while((tempResponse = bufferedReader.readLine()) != null) {
-		    	fullResponse.append(tempResponse.trim());
-		    }
-		    return new JSONObject(fullResponse.toString()).getInt("code") == 1;
-		}
+	public static APIResponse moderatorConfirmReport(String moderatorKey, int reportId, String reason) {
+		return doAPIRequest("moderator_confirm_report", new FastJSON(new Object[] {
+			"mod_key", moderatorKey,
+			"report_id", reportId,
+			"reason", reason
+		}), false);
+	}
+	
+	public static APIResponse grabGlobalStats() {
+		return doAPIRequest("grab_global_stats", null, false);
 	}
 }

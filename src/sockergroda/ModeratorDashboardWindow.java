@@ -3,7 +3,6 @@ package sockergroda;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ImageIcon;
@@ -19,10 +18,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import sockergroda.enums.Images;
+import utils.APIResponse;
 import utils.TimeStrings;
 
 public class ModeratorDashboardWindow {
@@ -71,16 +70,12 @@ public class ModeratorDashboardWindow {
 	    
 		reports = new JSONArray();
 		
-		try {
-			JSONObject response = APIManager.moderatorGrabReports(moderatorKey);
-			
-			if(response.getInt("code") == 1) {
-				reports = response.getJSONArray("reports");
-			} else {
-				JOptionPane.showMessageDialog(frmSockergrodaModDashb, "Cannot load reports. Failed access.", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-		} catch (IOException e2) {
-			e2.printStackTrace();
+		APIResponse response = APIManager.moderatorGrabReports(moderatorKey);
+		
+		if(response.isRequestSuccessful() && response.getCode() == 1) {
+			reports = response.getJSONArrayValue("reports");
+		} else {
+			JOptionPane.showMessageDialog(frmSockergrodaModDashb, "Cannot load reports. Failed access.", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		
 	    JButton btnBack = new JButton("Close");
@@ -147,15 +142,14 @@ public class ModeratorDashboardWindow {
 				
 				int confirmAction = JOptionPane.showConfirmDialog(frmSockergrodaModDashb, "Do you want to deny this report as the content is not malicious?", "Deny Report", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if(confirmAction == 0) {
-					try {
-						boolean successful = APIManager.moderatorDenyReport(moderatorKey, selectedReportData.getInt("id"));
-						if(!successful) {
+					APIResponse response = APIManager.moderatorDenyReport(moderatorKey, selectedReportData.getInt("id"));
+					if(response.isRequestSuccessful()) {
+						if(response.getCode() == 0) {
 							JOptionPane.showMessageDialog(frmSockergrodaModDashb, "The report could not be denied.", "Cannot Deny Report", JOptionPane.ERROR_MESSAGE);
 						}
 						refreshWindow();
-					} catch (JSONException | IOException e1) {
-						e1.printStackTrace();
-						JOptionPane.showMessageDialog(frmSockergrodaModDashb, "Cannot connect to the server.", "Server Error", JOptionPane.ERROR_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(frmSockergrodaModDashb, "Cannot connect to the server.", "Cannot Deny Report", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -197,14 +191,13 @@ public class ModeratorDashboardWindow {
 				
 				Object input = JOptionPane.showInputDialog(frmSockergrodaModDashb, "Specify a ban reason:", "Specify Reason", JOptionPane.PLAIN_MESSAGE, new ImageIcon(Images.MALICIOUS_16x16.getImage()), reasonOptions, reasonOptions[0]);
 				if(input != null) {
-					try {
-						boolean successful = APIManager.moderatorConfirmReport(moderatorKey, selectedReportData.getInt("id"), input.toString());
-						if(!successful) {
+					APIResponse response = APIManager.moderatorConfirmReport(moderatorKey, selectedReportData.getInt("id"), input.toString());
+					if(response.isRequestSuccessful()) {
+						if(response.getCode() == 0) {
 							JOptionPane.showMessageDialog(frmSockergrodaModDashb, "The report could not be confirmed.", "Cannot Confirm Report", JOptionPane.ERROR_MESSAGE);
 						}
 						refreshWindow();
-					} catch (JSONException | IOException e1) {
-						e1.printStackTrace();
+					} else {
 						JOptionPane.showMessageDialog(frmSockergrodaModDashb, "Cannot connect to the server.", "Cannot Confirm Report", JOptionPane.ERROR_MESSAGE);
 					}
 				}

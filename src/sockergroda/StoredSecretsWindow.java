@@ -3,7 +3,6 @@ package sockergroda;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.AbstractListModel;
@@ -23,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import sockergroda.enums.Images;
+import utils.APIResponse;
 import utils.TimeStrings;
 
 public class StoredSecretsWindow {
@@ -67,16 +67,15 @@ public class StoredSecretsWindow {
 	    frmSockergrodaStored.setLocationRelativeTo(null);
 	    
 		Map<String, Object> storedSecrets = StorageManager.getJSOMap("owned_secrets");
+
 		if(storedSecrets.size() > 0) {
-		    try {
-				JSONObject result = APIManager.grabStackedMetadata(storedSecrets);
-				metaDataArray = result.getJSONArray("meta_result");
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			APIResponse response = APIManager.grabStackedMetadata(storedSecrets);
+			if(!response.isRequestSuccessful()) {
 				JOptionPane.showMessageDialog(frmSockergrodaStored, "Cannot load your stored secret metadata!", "Cannot Load Metadata", JOptionPane.ERROR_MESSAGE);
 				frmSockergrodaStored.dispose();
 				return;
 			}
+			metaDataArray = response.getJSONArrayValue("meta_result");
 			
 			int deadSecrets = 0;
 			
@@ -160,16 +159,14 @@ public class StoredSecretsWindow {
 				
 				int confirmDelete = JOptionPane.showConfirmDialog(frmSockergrodaStored, "Do you want to delete this secret?\nIt will be gone forever.", "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 				if(confirmDelete == 0) {
-					try {
-						APIManager.deleteSecret(selectedSecretId, selectedSecretOwnerKey);
+					APIResponse response = APIManager.deleteSecret(Integer.parseInt(selectedSecretId), selectedSecretOwnerKey);
+					if(response.isRequestSuccessful()) {
 						storedSecrets.remove(selectedSecretId);
 						StorageManager.setAttribute("owned_secrets", storedSecrets);
 	
-						//JOptionPane.showMessageDialog(frmSockergrodaStored, "The secret was deleted and cannot be accessed again.", "Secret Deleted", JOptionPane.INFORMATION_MESSAGE);
 						frmSockergrodaStored.dispose();
 						StoredSecretsWindow.display();
-					} catch (IOException e1) {
-						e1.printStackTrace();
+					} else {
 						JOptionPane.showMessageDialog(frmSockergrodaStored, "Cannot delete the secret!", "Cannot Delete", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -192,7 +189,6 @@ public class StoredSecretsWindow {
 					storedSecrets.remove(selectedSecretId);
 					StorageManager.setAttribute("owned_secrets", storedSecrets);
 
-					//JOptionPane.showMessageDialog(frmSockergrodaStored, "The secret was abandoned.", "Secret Abandoned", JOptionPane.INFORMATION_MESSAGE);
 					frmSockergrodaStored.dispose();
 					StoredSecretsWindow.display();
 				}

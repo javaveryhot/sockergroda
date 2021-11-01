@@ -66,6 +66,7 @@ public class OpenAdvertisementWindow {
 	    frmSockergrodaOpenAd.setIconImage(Images.ICON_32x32.getImage());
 	    frmSockergrodaOpenAd.setLocationRelativeTo(null);
 	    frmSockergrodaOpenAd.getContentPane().setLayout(null);
+	    frmSockergrodaOpenAd.setAlwaysOnTop(true);
 	    
 	    JButton btnCancel = new JButton("Cancel");
 	    btnCancel.setBounds(10, 63, 89, 23);
@@ -139,14 +140,10 @@ public class OpenAdvertisementWindow {
     	} else {
     		// On the last second, instead of just waiting 1 second, it sends the click registration to the server and then waits the remaining time
     		long prevTime = System.currentTimeMillis();
-			try {
-				APIManager.registerAdvertisementClicked(id);
-			} catch(IOException e2) {
-				JOptionPane.showMessageDialog(frmSockergrodaOpenAd, "Could not send a request to the server.", "Server Error", JOptionPane.ERROR_MESSAGE);
-				openingAdvertisement = false;
-				return;
-			}
-			int remTime = (int)Math.max(1000 - (System.currentTimeMillis() - prevTime), 0);
+
+    		APIManager.registerAdvertisementClicked(id);
+
+    		int remTime = (int)Math.max(1000 - (System.currentTimeMillis() - prevTime), 0);
     	    final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     	    executorService.scheduleAtFixedRate(new Runnable() {
     	        @Override

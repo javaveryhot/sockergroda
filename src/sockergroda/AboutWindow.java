@@ -80,7 +80,7 @@ public class AboutWindow {
 	    btnWebsite.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Main.openURL("https://sockergroda.repl.co");
+				Main.openURL(Main.websiteUrl);
 			}
 		});
 	    frmSockergrodaAbout.getContentPane().add(btnWebsite);

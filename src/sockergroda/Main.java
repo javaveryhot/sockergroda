@@ -19,14 +19,14 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.json.JSONObject;
-
+import utils.APIResponse;
 import utils.VersionConverter;
 
 public class Main {
-	public static int versionInt = 108;
+	public static int versionInt = 109;
 	public static String versionName = VersionConverter.intToString(versionInt); // Only for visuals! Do not use for detection
 	public static String version = VersionConverter.intToString(versionInt, false);
+	public static String websiteUrl = "https://sockergroda.repl.co";
 	public static String downloadUrl = "https://sockergroda.repl.co/download";
 	public static String helpUrl = "https://sockergroda.repl.co/help";
 	public static String reportIssueUrl = "https://github.com/javaveryhot/sockergroda/issues";
@@ -40,13 +40,8 @@ public class Main {
 	public static long lastCopyAttempt = 0;
 	
 	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-		
+		fixUI();
+
 		InitWindow initializationWnd = InitWindow.display();
 		
 		initializationWnd.setStatus("Setting up storage file", 15);
@@ -70,22 +65,18 @@ public class Main {
 		updateAPIHost();
 		
 		initializationWnd.setStatus("Connecting to the API", 70);
-
-		if(!APIManager.testSockergrodaAPI()) {
+		
+		if(APIManager.testSockergrodaAPI().getCode() != 1) {
 			JOptionPane.showMessageDialog(null, "Cannot connect to the Sockergroda API!\nThe server may be under maintenance.", "No API Access", JOptionPane.ERROR_MESSAGE);
 		}
 		
 		initializationWnd.setStatus("Confirming client address", 80);
 		
-		try {
-			JSONObject addressTest = APIManager.isAddressOk();
-			if(addressTest.getInt("code") == 0) {
-				JOptionPane.showMessageDialog(null, "You are banned from the Sockergroda API for abuse.\nYou cannot access this service anymore.\nReason: " + addressTest.getString("reason"), "Bad Client Access", JOptionPane.ERROR_MESSAGE);
-				initializationWnd.dispose();
-				return;
-			}
-		} catch (IOException e2) {
-			e2.printStackTrace();
+		APIResponse addressTest = APIManager.isAddressOk();
+		if(addressTest.isRequestSuccessful() && addressTest.getCode() == 0) {
+			JOptionPane.showMessageDialog(null, "You are banned from the Sockergroda API for abuse.\nYou cannot access this service anymore.\nReason: " + addressTest.getStringValue("reason"), "Bad Client Access", JOptionPane.ERROR_MESSAGE);
+			initializationWnd.dispose();
+			return;
 		}
 		
 		initializationWnd.setStatus("Setting up copy listener", 90);
@@ -111,13 +102,18 @@ public class Main {
 		
 		initializationWnd.setStatus("Launching", 100);
 
-		initializationWnd.dispose();
-		
 		if(!StorageManager.getBoolean("pre_usage_warning_confirmed")) {
 			PreUsageWarningWindow.display();
 		} else {
 			MainWindow.display();
+			
+			if(Math.floor(Math.random() * 1000) < 200 && !StorageManager.getBoolean("offered_feedback")) {
+				FeedbackWindow.display();
+				StorageManager.setAttribute("offered_feedback", true);
+			}
 		}
+		
+		initializationWnd.dispose();
 	}
 	
 	public static boolean hasInternetConnection() {
@@ -154,15 +150,11 @@ public class Main {
 	}
 	
 	public static void displayUpdate(boolean onlyIfAvailable) {
-    	try {
-    		JSONObject globalVersionData = APIManager.grabVersionData();
-    		int latestVersion = globalVersionData.getInt("latest_version");
-    		if(latestVersion > Main.versionInt || !onlyIfAvailable) {
-    			UpdateWindow.display(versionInt, latestVersion);
-    		}
-    	} catch(IOException e) {
-    		e.printStackTrace();
-    	}
+		APIResponse globalVersionData = APIManager.grabVersionData();
+		int latestVersion = globalVersionData.getIntValue("latest_version");
+		if(latestVersion > Main.versionInt || !onlyIfAvailable) {
+			UpdateWindow.display(versionInt, latestVersion);
+		}
 	}
 	
 	public static void updateLastCopyAttempt() {
@@ -192,5 +184,15 @@ public class Main {
 		}
 		
 		return null;
+	}
+	
+	public static void fixUI() {
+		try {
+			String preferredLookAndFeel = StorageManager.getString("preferred_look_and_feel");
+			UIManager.setLookAndFeel(preferredLookAndFeel.equals("") ? UIManager.getSystemLookAndFeelClassName() : preferredLookAndFeel);
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 	}
 }

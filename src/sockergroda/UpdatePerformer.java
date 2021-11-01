@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import utils.APIResponse;
+
 public class UpdatePerformer {
 	private String preferredFileType;
 	
@@ -33,20 +35,20 @@ public class UpdatePerformer {
 	}
 	
 	public void beginUpdate() {
-		try {
-			this.setOperation("Grabbing the latest version data", 20);
-    		JSONObject globalVersionData = APIManager.grabVersionData();
-    		int latestVersion = globalVersionData.getInt("latest_version");
-    		if(latestVersion <= Main.versionInt) {
-    			this.abortUpdate("No update is available.");
-    			return;
-    		}
-    	} catch(IOException e) {
-    		e.printStackTrace();
+		this.setOperation("Grabbing the latest version data", 20);
+		
+		APIResponse response = APIManager.grabVersionData();
+
+		if(!response.isRequestSuccessful()) {
     		this.abortUpdate("Cannot connect to the Sockergroda API.");
     		return;
-    	}
-    	
+		}
+
+		int latestVersion = response.getIntValue("latest_version");
+		if(latestVersion <= Main.versionInt) {
+			this.abortUpdate("No update is available.");
+			return;
+		}    	
     	
     	try {
     		this.setOperation("Checking the releases", 40);

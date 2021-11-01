@@ -2,7 +2,6 @@ package sockergroda;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -82,17 +81,12 @@ public class RemoveAdvertisements {
 	    			raKey = Integer.parseInt(removeAdsKey);
 	    		} catch(NumberFormatException e1) {}
 	    		
-	    		try {
-					if(APIManager.testRAKey(raKey)) {
-						Main.removeAds();
-						JOptionPane.showMessageDialog(frmSockergrodaRemoveAds, "Success! Advertisements have been removed.", "Advertisements Removed", JOptionPane.INFORMATION_MESSAGE);
-						frmSockergrodaRemoveAds.dispose();
-					} else {
-						JOptionPane.showMessageDialog(frmSockergrodaRemoveAds, "An invalid RA key was provided. Make sure that you wrote it correctly.", "Invalid Key", JOptionPane.ERROR_MESSAGE);
-					}
-				} catch (IOException e1) {
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(frmSockergrodaRemoveAds, "An error occured whilst trying to connect to the server. Please try again later.", "Server Error", JOptionPane.ERROR_MESSAGE);
+				if(APIManager.testRAKey(raKey)) {
+					Main.removeAds();
+					JOptionPane.showMessageDialog(frmSockergrodaRemoveAds, "Success! Advertisements have been removed.", "Advertisements Removed", JOptionPane.INFORMATION_MESSAGE);
+					frmSockergrodaRemoveAds.dispose();
+				} else {
+					JOptionPane.showMessageDialog(frmSockergrodaRemoveAds, "An invalid RA key was provided. Make sure that you wrote it correctly.", "Invalid Key", JOptionPane.ERROR_MESSAGE);
 				}
 	    	}
 	    });

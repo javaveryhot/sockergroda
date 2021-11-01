@@ -14,11 +14,15 @@ public enum Images {
 	PLUS_16x16("icons/16x16/plus.png"),
 	MAGN_GLASS_16x16("icons/16x16/magnifying_glass.png"),
 	INIT_BANNER("sockergroda_banner.png"),
+	INIT_BACKGROUND("init_background.png"),
 	
 	KEY_16x16("icons/16x16/password.png"),
 	REPOSITORY_16x16("icons/16x16/repository.png"),
 	ISSUE_16x16("icons/16x16/bug.png"),
+	CONFIG_16x16("icons/16x16/config.png"),
 	RESET_CONFIG_16x16("icons/16x16/reset_config.png"),
+	EXPORT_CONFIG_16x16("icons/16x16/export_config.png"),
+	IMPORT_CONFIG_16x16("icons/16x16/import_config.png"),
 	UPDATE_16x16("icons/16x16/update.png"),
 	ABOUT_16x16("icons/16x16/about.png"),
 	CREATE_16x16("icons/16x16/create.png"),
@@ -41,10 +45,11 @@ public enum Images {
 	RESTART_16x16("icons/16x16/restart.png"),
 	MODIFY_API_SERVER_16x16("icons/16x16/modify_api_server.png"),
 	MALICIOUS_16x16("icons/16x16/malicious.png"),
-	EXPORT_CONFIG_16x16("icons/16x16/export_config.png"),
-	IMPORT_CONFIG_16x16("icons/16x16/import_config.png"),
 	MODERATOR_WAND_16x16("icons/16x16/moderator_wand.png"),
-	REFRESH_16x16("icons/16x16/refresh.png");
+	REFRESH_16x16("icons/16x16/refresh.png"),
+	GLOBE_16x16("icons/16x16/globe.png"),
+	THUMBS_UP_16x16("icons/16x16/thumbs_up.png"),
+	EXIT_16x16("icons/16x16/exit.png");
 	
 	Image image;
 	private Images(String imageLocation) {

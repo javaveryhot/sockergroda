@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,9 +19,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.json.JSONObject;
-
 import sockergroda.enums.Images;
+import utils.APIResponse;
 
 public class InspectSecretWindow {
 
@@ -126,17 +124,23 @@ public class InspectSecretWindow {
 				
 				String password = new String(passwordField.getPassword());
 				long rawSecretIdLong = Long.parseLong(rawSecretId);
-				try {
-					JSONObject jsonResponse = APIManager.inspectSecret(rawSecretIdLong, password);
-					int code = jsonResponse.getInt("code");
+
+				// Do the request
+				
+				APIResponse response = APIManager.inspectSecret(rawSecretIdLong, password);
+				
+				if(response.isRequestSuccessful()) {
+					int code = response.getCode();
+	
 					if(code != 2) {
 						// Code 0 is invalid ID and 1 is bad password
 						JOptionPane.showMessageDialog(frmSockergrodaInspect, code == 0 ? "There is no secret with such ID.\nIt has either expired or never existed." : "Incorrect password for secret.", code == 0 ? "Bad ID" : "Bad Password", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
+	
 					frmSockergrodaInspect.dispose();
-					DisplaySecretWindow.display(Math.toIntExact(rawSecretIdLong), password, jsonResponse);
-				} catch (IOException e1) {
+					DisplaySecretWindow.display(Math.toIntExact(rawSecretIdLong), password, response);
+				} else {
 					JOptionPane.showMessageDialog(frmSockergrodaInspect, "An error occured whilst trying to connect to the server. Please try again later.", "Server Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -208,13 +212,9 @@ public class InspectSecretWindow {
 
 		if(rawSecretId.length() != 0) {
 			long rawSecretIdLong = Long.parseLong(rawSecretId);
-			try {
-				JSONObject jsonResponse = APIManager.checkSecret(rawSecretIdLong);
-				validMode = jsonResponse.getBoolean("valid");
-				passwordless = jsonResponse.getBoolean("passwordless");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			APIResponse response = APIManager.checkSecret(rawSecretIdLong);
+			validMode = response.getBooleanValue("valid");
+			passwordless = response.getBooleanValue("passwordless");
 		}
 		
 		this.validationIcon.setIcon(new ImageIcon(validMode ? Images.CORRECT_16x16.getImage() : Images.INCORRECT_16x16.getImage()));
