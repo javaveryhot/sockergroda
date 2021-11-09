@@ -94,6 +94,8 @@ public class StoredSecretsWindow {
 			}
 		}
 		
+		frmSockergrodaStored.setTitle(frmSockergrodaStored.getTitle() + " (" + storedSecrets.size() + ")");
+		
 	    JButton btnBack = new JButton("Close");
 	    btnBack.setMnemonic('C');
 	    btnBack.setBounds(10, 226, 89, 23);

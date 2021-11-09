@@ -1,0 +1,5 @@
+- Added this, the changelog
+- Fixed bug where when downloading a new version, it would get stuck on the last operation
+- Changed the expiration setter; divided the two types into tabs, changed the time type to be easier to set (from multiple spinners to a more specific calendar)
+- Added a free-text character count and a font size changer
+- UI enhancements and improvements

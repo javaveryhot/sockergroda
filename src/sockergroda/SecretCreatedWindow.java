@@ -9,7 +9,11 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import sockergroda.enums.Images;
 
@@ -44,31 +48,31 @@ public class SecretCreatedWindow {
 		frmSockergrodaSecret = new SGFrame();
 		frmSockergrodaSecret.setTitle("Secret Created");
 		frmSockergrodaSecret.setResizable(false);
-		frmSockergrodaSecret.setBounds(100, 100, 500, 160);
+		frmSockergrodaSecret.setBounds(100, 100, 500, 150);
 		frmSockergrodaSecret.setLocationRelativeTo(null);
 		frmSockergrodaSecret.setIconImage(Images.ICON_32x32.getImage());
 		frmSockergrodaSecret.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmSockergrodaSecret.getContentPane().setLayout(null);
 		
-		JLabel lblSecretCreated = new JLabel("Secret has been generated:");
-		lblSecretCreated.setBounds(25, 24, 212, 14);
+		JLabel lblSecretCreated = new JLabel("Secret ID:");
+		lblSecretCreated.setBounds(25, 11, 212, 14);
 		frmSockergrodaSecret.getContentPane().add(lblSecretCreated);
 		
 		txtSecretId = new JTextField();
 		txtSecretId.setText("<sg?" + secretId + ">");
-		txtSecretId.setBounds(25, 41, 125, 20);
+		txtSecretId.setBounds(25, 28, 125, 20);
 		txtSecretId.setEditable(false);
 		frmSockergrodaSecret.getContentPane().add(txtSecretId);
 		txtSecretId.setColumns(10);
 		
 		JButton btnCopy = new JButton("Copy");
+		btnCopy.setBounds(160, 27, 77, 23);
 		btnCopy.setIcon(new ImageIcon(Images.COPY_16x16.getImage()));
 		btnCopy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Main.copyToClipboard(txtSecretId.getText());
 			}
 		});
-		btnCopy.setBounds(160, 40, 77, 23);
 		frmSockergrodaSecret.getContentPane().add(btnCopy);
 		
 		txtSecretId.grabFocus();
@@ -77,26 +81,37 @@ public class SecretCreatedWindow {
 		
 		if(password != null) {
 			JLabel passwordLabel = new JLabel("Password:");
-			passwordLabel.setBounds(25, 75, 95, 14);
+			passwordLabel.setBounds(25, 59, 95, 14);
 			frmSockergrodaSecret.getContentPane().add(passwordLabel);
 			
-			JTextField textField = new JTextField();
-			textField.setText(password);
-			textField.setEditable(false);
-			textField.setColumns(10);
-			textField.setBounds(25, 89, 125, 20);
-			frmSockergrodaSecret.getContentPane().add(textField);
+			JPasswordField passwordField = new JPasswordField();
+			passwordField.setText(password);
+			passwordField.setEditable(false);
+			passwordField.setColumns(10);
+			passwordField.setBounds(25, 76, 125, 20);
+			frmSockergrodaSecret.getContentPane().add(passwordField);
 			
-			JCheckBox toggleShowPasswordCheckBox = new JCheckBox("Show password");
-			toggleShowPasswordCheckBox.addActionListener(new ActionListener() {
+			JCheckBox toggleShowPasswordCheckBox = new JCheckBox("Show");
+			toggleShowPasswordCheckBox.setBounds(80, 59, 105, 14);
+			ChangeListener togglePasswordShow = new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					passwordField.setEchoChar(toggleShowPasswordCheckBox.isSelected() ? (char)0 : (char)UIManager.get("PasswordField.echoChar"));
+				}
+			};
+			toggleShowPasswordCheckBox.addChangeListener(togglePasswordShow);
+			togglePasswordShow.stateChanged(null);
+			frmSockergrodaSecret.getContentPane().add(toggleShowPasswordCheckBox);
+			
+			JButton btnCopyPassword = new JButton("Copy Password");
+			btnCopyPassword.setBounds(160, 76, 141, 23);
+			btnCopyPassword.setIcon(new ImageIcon(Images.COPY_16x16.getImage()));
+			btnCopyPassword.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					textField.setText(toggleShowPasswordCheckBox.isSelected() ? password : password.replaceAll(".", "*"));
+					Main.copyToClipboard(new String(passwordField.getPassword()));
 				}
 			});
-			toggleShowPasswordCheckBox.doClick();
-			toggleShowPasswordCheckBox.doClick();
-			toggleShowPasswordCheckBox.setBounds(160, 88, 130, 23);
-			frmSockergrodaSecret.getContentPane().add(toggleShowPasswordCheckBox);
+			frmSockergrodaSecret.getContentPane().add(btnCopyPassword);
 		}
 		
 		JButton btnClose = new JButton("Close");
@@ -106,7 +121,7 @@ public class SecretCreatedWindow {
 				frmSockergrodaSecret.dispose();
 			}
 		});
-		btnClose.setBounds(397, 86, 70, 23);
+		btnClose.setBounds(397, 76, 70, 23);
 		frmSockergrodaSecret.getContentPane().add(btnClose);
 		
 		JLabel lblSaved = new JLabel();
@@ -115,7 +130,7 @@ public class SecretCreatedWindow {
 			lblSaved.setIcon(new ImageIcon(Images.CORRECT_16x16.getImage()));
 		}
 		lblSaved.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblSaved.setBounds(317, 65, 150, 14);
+		lblSaved.setBounds(317, 45, 150, 14);
 		frmSockergrodaSecret.getContentPane().add(lblSaved);
 	}
 }

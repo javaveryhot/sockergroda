@@ -15,15 +15,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import sockergroda.enums.Images;
 import utils.APIResponse;
 import utils.VersionConverter;
 
 public class Main {
-	public static int versionInt = 109;
+	public static int versionInt = 110;
 	public static String versionName = VersionConverter.intToString(versionInt); // Only for visuals! Do not use for detection
 	public static String version = VersionConverter.intToString(versionInt, false);
 	public static String websiteUrl = "https://sockergroda.repl.co";
@@ -91,7 +93,7 @@ public class Main {
 							Main.updateLastCopyAttempt();
 							InspectSecretWindow.display(null, true);
 						}
-					} catch (HeadlessException | UnsupportedFlavorException | IOException e1) {}
+					} catch (HeadlessException | UnsupportedFlavorException | IOException | IllegalStateException e1) {}
 				}
 			};
 			
@@ -107,7 +109,13 @@ public class Main {
 		} else {
 			MainWindow.display();
 			
-			if(Math.floor(Math.random() * 1000) < 200 && !StorageManager.getBoolean("offered_feedback")) {
+			if(versionInt > StorageManager.getInt("latest_version_used")) {
+				StorageManager.setAttribute("latest_version_used", versionInt);
+				int dialogResult = JOptionPane.showConfirmDialog(null, "Welcome to Sockergroda " + versionName + ".\nDo you want to see the changelog for this version?", "Welcome!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(Images.ICON_16x16.getImage()));
+				if(dialogResult == 0) {
+					ChangeLogWindow.display();
+				}
+			} else if(Math.floor(Math.random() * 10) < 2 && !StorageManager.getBoolean("offered_feedback")) {
 				FeedbackWindow.display();
 				StorageManager.setAttribute("offered_feedback", true);
 			}

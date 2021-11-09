@@ -82,6 +82,12 @@ public class MainWindow {
     frmSockergroda.setIconImage(Images.ICON_32x32.getImage());
     frmSockergroda.getContentPane().setLayout(null);
     
+    int personalSecrets = 0;
+    
+    if(StorageManager.hasAttribute("owned_secrets")) {
+    	personalSecrets = StorageManager.getJSOMap("owned_secrets").size();
+    }
+    
     JButton btnCreate = new JButton("Create");
     btnCreate.setMnemonic('C');
     btnCreate.setToolTipText("Create a secret to be inspected by other people");
@@ -173,6 +179,12 @@ public class MainWindow {
     lblTotalSecrets.setBounds(346, 76, 60, 19);
     frmSockergroda.getContentPane().add(lblTotalSecrets);
     
+    JLabel lblPersonalSecrets = new JLabel(Integer.toString(personalSecrets));
+    lblPersonalSecrets.setIcon(new ImageIcon(Images.SAVED_SECRETS_16x16.getImage()));
+    lblPersonalSecrets.setToolTipText("Your secrets");
+    lblPersonalSecrets.setBounds(346, 96, 60, 19);
+    frmSockergroda.getContentPane().add(lblPersonalSecrets);
+    
     JMenuBar menuBar = new JMenuBar();
     frmSockergroda.setJMenuBar(menuBar);
     
@@ -200,7 +212,7 @@ public class MainWindow {
     mntmInspectSecret.setIcon(new ImageIcon(Images.INSPECT_16x16.getImage()));
     mnMain.add(mntmInspectSecret);
     
-    JMenuItem mntmStoredSecrets = new JMenuItem("Saved secrets...");
+    JMenuItem mntmStoredSecrets = new JMenuItem("Saved secrets (" + personalSecrets + ")...");
     mntmStoredSecrets.setMnemonic('S');
     mntmStoredSecrets.setIcon(new ImageIcon(Images.SAVED_SECRETS_16x16.getImage()));
     mntmStoredSecrets.addActionListener(new ActionListener() {
@@ -289,15 +301,15 @@ public class MainWindow {
     mnManConfig.setIcon(new ImageIcon(Images.CONFIG_16x16.getImage()));
     mnConfig.add(mnManConfig);
     
-    JMenuItem mntmExportConfig = new JMenuItem("Export configuration...");
+    JMenuItem mntmExportConfig = new JMenuItem("Export...");
     mnManConfig.add(mntmExportConfig);
     mntmExportConfig.setIcon(new ImageIcon(Images.EXPORT_CONFIG_16x16.getImage()));
     
-    JMenuItem mntmImportConfig = new JMenuItem("Import configuration...");
+    JMenuItem mntmImportConfig = new JMenuItem("Import...");
     mnManConfig.add(mntmImportConfig);
     mntmImportConfig.setIcon(new ImageIcon(Images.IMPORT_CONFIG_16x16.getImage()));
     
-    JMenuItem mntmResetConfig = new JMenuItem("Reset configuration...");
+    JMenuItem mntmResetConfig = new JMenuItem("Reset...");
     mnManConfig.add(mntmResetConfig);
     mntmResetConfig.setIcon(new ImageIcon(Images.RESET_CONFIG_16x16.getImage()));
     mntmResetConfig.addActionListener(new ActionListener() {
@@ -440,6 +452,16 @@ public class MainWindow {
 		}
 	});
     mnHelp.add(mntmAbout);
+    
+    JMenuItem mntmChangeLog = new JMenuItem("Changelog...");
+    mntmChangeLog.setIcon(new ImageIcon(Images.CHANGELOG_16x16.getImage()));
+    mntmChangeLog.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ChangeLogWindow.display();
+		}
+	});
+    mnHelp.add(mntmChangeLog);
     
     JMenu mnExtras = new JMenu("Extras");
     mnExtras.setMnemonic('x');

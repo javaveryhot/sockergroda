@@ -11,6 +11,9 @@ import javax.swing.JLabel;
 import javax.swing.JSeparator;
 
 import sockergroda.enums.Images;
+import javax.swing.SwingConstants;
+import javax.swing.JTextPane;
+import java.awt.SystemColor;
 
 public class AboutWindow {
 
@@ -61,19 +64,12 @@ public class AboutWindow {
 	    separator_2.setBounds(10, 69, 355, 6);
 	    frmSockergrodaAbout.getContentPane().add(separator_2);
 	    
-	    JLabel lblTitle = new JLabel("About Sockergroda");
-	    lblTitle.setBounds(10, 11, 355, 47);
-	    lblTitle.setIcon(new ImageIcon(Images.ICON_32x32.getImage()));
-	    lblTitle.setFont(new Font("Segoe UI Historic", Font.PLAIN, 35));
+	    JLabel lblTitle = new JLabel(Main.versionName);
+	    lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+	    lblTitle.setBounds(10, 5, 355, 64);
+	    lblTitle.setIcon(new ImageIcon(Images.ICON_64x64.getImage()));
+	    lblTitle.setFont(new Font("Lucida Bright", Font.PLAIN, 40));
 	    frmSockergrodaAbout.getContentPane().add(lblTitle);
-	    
-	    JLabel lblInfo1 = new JLabel("Version " + Main.version + ". Created by crunchyfrog in 2021.");
-	    lblInfo1.setBounds(20, 86, 310, 14);
-	    frmSockergrodaAbout.getContentPane().add(lblInfo1);
-	    
-	    JLabel lblInfo2 = new JLabel("No rights reserved. Iconset: RR (icons16x16.com/SET-RR)");
-	    lblInfo2.setBounds(20, 111, 310, 14);
-	    frmSockergrodaAbout.getContentPane().add(lblInfo2);
 	    
 	    JButton btnWebsite = new JButton("Website");
 	    btnWebsite.setBounds(245, 136, 105, 23);
@@ -90,9 +86,16 @@ public class AboutWindow {
 	    btnLicense.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				License.display();
+				LicenseWindow.display();
 			}
 		});
 	    frmSockergrodaAbout.getContentPane().add(btnLicense);
+	    
+	    JTextPane txtpnVersioninsertVersion = new JTextPane();
+	    txtpnVersioninsertVersion.setEditable(false);
+	    txtpnVersioninsertVersion.setBackground(SystemColor.menu);
+	    txtpnVersioninsertVersion.setText("Version " + Main.version + ". Created by crunchyfrog in Jul-Nov.\r\nCopyright Sockergroda 2021. No rights reserved.\r\nIconset: RR (https://icons16x16.com/SET-RR)");
+	    txtpnVersioninsertVersion.setBounds(20, 80, 330, 45);
+	    frmSockergrodaAbout.getContentPane().add(txtpnVersioninsertVersion);
 	}
 }

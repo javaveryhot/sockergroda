@@ -7,6 +7,9 @@ import javax.imageio.ImageIO;
 
 public enum Images {
 	ICON_1024x1024("icons/1024x1024/sockergroda.png"),
+	ICON_512x512("icons/512x512/sockergroda.png"),
+	ICON_256x256("icons/256x256/sockergroda.png"),
+	ICON_64x64("icons/64x64/sockergroda.png"),
 	ICON_32x32("icons/32x32/sockergroda.png"),
 	ICON_16x16("icons/16x16/sockergroda.png"),
 	
@@ -49,7 +52,8 @@ public enum Images {
 	REFRESH_16x16("icons/16x16/refresh.png"),
 	GLOBE_16x16("icons/16x16/globe.png"),
 	THUMBS_UP_16x16("icons/16x16/thumbs_up.png"),
-	EXIT_16x16("icons/16x16/exit.png");
+	EXIT_16x16("icons/16x16/exit.png"),
+	CHANGELOG_16x16("icons/16x16/changelog.png");
 	
 	Image image;
 	private Images(String imageLocation) {

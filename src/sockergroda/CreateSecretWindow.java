@@ -1,19 +1,21 @@
 package sockergroda;
 
-import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.SystemColor;
 import java.awt.TextArea;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.TextEvent;
+import java.awt.event.TextListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.Map;
 
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -22,36 +24,35 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.github.lgooddatepicker.components.DateTimePicker;
+import com.github.lgooddatepicker.optionalusertools.DateTimeChangeListener;
+import com.github.lgooddatepicker.zinternaltools.DateTimeChangeEvent;
 
 import sockergroda.enums.Images;
 import utils.APIResponse;
 import utils.TimeStrings;
 
 public class CreateSecretWindow {
-
 	private JFrame frmSockergrodaCreate;
 	private JPasswordField passwordField;
 	private boolean passwordEnabled = true;
 	private JTextField txtTitle;
-	private JRadioButton rdbtnExpireTypeTime;
-	private JRadioButton rdbtnExpireTypeUses;
 	private JLabel lblExpirationSummary;
 	
-	private JSpinner spinner_minutes;
-	private JSpinner spinner_hours;
-	private JSpinner spinner_days;
-	private JSpinner spinner_weeks;
-	private JSpinner spinner_months;
-	private JSpinner spinner_years;
-	
 	private JSpinner spinner_uses;
+	
+	private DateTimePicker datePicker;
+	private JTabbedPane expirationTypeTabs;
 
 	/**
 	 * Launch the application.
@@ -101,33 +102,28 @@ public class CreateSecretWindow {
 		frmSockergrodaCreate.getContentPane().add(lblFreeText);
 		
 		TextArea textArea = new TextArea();
-		textArea.setFont(new Font("Monospaced", Font.BOLD, 12));
 		textArea.setBounds(10, 95, 380, 122);
-		textArea.addKeyListener(new KeyListener() {
+		frmSockergrodaCreate.getContentPane().add(textArea);
+		
+		JLabel lblFreetextCharCount = new JLabel();
+		lblFreetextCharCount.setForeground(SystemColor.textInactiveText);
+		lblFreetextCharCount.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblFreetextCharCount.setBounds(301, 75, 89, 14);
+		frmSockergrodaCreate.getContentPane().add(lblFreetextCharCount);
+		
+		textArea.addTextListener(new TextListener() {
 			@Override
-			public void keyTyped(KeyEvent e) {
-				if(textArea.getText().length() >= 3000) {
-					e.consume();
-				}
-			}
-			public void keyReleased(KeyEvent e) {}
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
-					String clipboard = "";
-					try {
-						clipboard = ((String)Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor)).trim();
-					} catch(Exception e1) {
-						clipboard = "";
-					}
-					int totalLength = textArea.getText().length() + clipboard.length() - textArea.getSelectedText().length();
-					if(totalLength > 3000) {
-						e.consume();
-					}
+			public void textValueChanged(TextEvent e) {
+				int freetextLength = textArea.getText().length();
+				if(freetextLength > 0) {
+					lblFreetextCharCount.setText(freetextLength + " chars");
+					lblFreetextCharCount.setIcon(new ImageIcon(!(freetextLength > 3000) ? Images.CORRECT_16x16.getImage() : Images.INCORRECT_16x16.getImage()));
+				} else {
+					lblFreetextCharCount.setText(null);
+					lblFreetextCharCount.setIcon(null);
 				}
 			}
 		});
-		frmSockergrodaCreate.getContentPane().add(textArea);
 		
 		frmSockergrodaCreate.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -156,71 +152,51 @@ public class CreateSecretWindow {
 		lblExpires.setBounds(10, 300, 326, 14);
 		frmSockergrodaCreate.getContentPane().add(lblExpires);
 		
-		JLabel lblMinutes = new JLabel("Min.");
-		lblMinutes.setBounds(31, 344, 46, 14);
-		frmSockergrodaCreate.getContentPane().add(lblMinutes);
+		expirationTypeTabs = new JTabbedPane(JTabbedPane.TOP);
+		expirationTypeTabs.setBounds(10, 320, 409, 70);
+		frmSockergrodaCreate.getContentPane().add(expirationTypeTabs);
+
+		JPanel timeBased = new JPanel();
+		expirationTypeTabs.addTab("Time-based", null, timeBased, null);
 		
-		JLabel lblHours = new JLabel("Hours");
-		lblHours.setBounds(75, 344, 46, 14);
-		frmSockergrodaCreate.getContentPane().add(lblHours);
+		datePicker = new DateTimePicker();
+		datePicker.getDatePicker().setDate(LocalDate.now().plusDays(3));
+		datePicker.getTimePicker().setTime(LocalTime.now().plusMinutes(1));
+		timeBased.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		timeBased.add(datePicker);
 		
-		JLabel lblDays = new JLabel("Days");
-		lblDays.setBounds(120, 344, 46, 14);
-		frmSockergrodaCreate.getContentPane().add(lblDays);
+		datePicker.addDateTimeChangeListener(new DateTimeChangeListener() {
+			@Override
+			public void dateOrTimeChanged(DateTimeChangeEvent arg0) {
+				updateExpirationSummaryText();
+			}
+		});
 		
-		JLabel lblWeeks = new JLabel("Weeks");
-		lblWeeks.setBounds(170, 344, 46, 14);
-		frmSockergrodaCreate.getContentPane().add(lblWeeks);
+		JPanel usageBased = new JPanel();
+		expirationTypeTabs.addTab("Usage-based", null, usageBased, null);
 		
-		JLabel lblMonths = new JLabel("Months");
-		lblMonths.setBounds(209, 344, 46, 14);
-		frmSockergrodaCreate.getContentPane().add(lblMonths);
+		spinner_uses = new JSpinner();
+		spinner_uses.setModel(new SpinnerNumberModel(1, 1, 100, 1));
+		spinner_uses.setBounds(223, 369, 63, 20);
+		usageBased.add(spinner_uses);
 		
-		JLabel lblYears = new JLabel("Years");
-		lblYears.setBounds(254, 344, 46, 14);
-		frmSockergrodaCreate.getContentPane().add(lblYears);
-		
-		JPanel panel = new JPanel();
-		panel.setBounds(10, 320, 291, 38);
-		frmSockergrodaCreate.getContentPane().add(panel);
-		
-		spinner_minutes = new JSpinner();
-		panel.add(spinner_minutes);
-		spinner_minutes.setModel(new SpinnerNumberModel(0, 0, 59, 1));
-		
-		spinner_hours = new JSpinner();
-		panel.add(spinner_hours);
-		spinner_hours.setModel(new SpinnerNumberModel(0, 0, 23, 1));
-		
-		spinner_days = new JSpinner();
-		panel.add(spinner_days);
-		spinner_days.setModel(new SpinnerNumberModel(3, 0, 364, 1));
-		
-		spinner_weeks = new JSpinner();
-		panel.add(spinner_weeks);
-		spinner_weeks.setModel(new SpinnerNumberModel(0, 0, 51, 1));
-		
-		spinner_months = new JSpinner();
-		panel.add(spinner_months);
-		spinner_months.setModel(new SpinnerNumberModel(0, 0, 11, 1));
-		
-		spinner_years = new JSpinner();
-		panel.add(spinner_years);
-		spinner_years.setModel(new SpinnerNumberModel(0, 0, 3, 1));
-		
-		ChangeListener expirationChangeListener = new ChangeListener() {
+		spinner_uses.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				updateExpirationSummaryText();
 			}
-		};
+		});
 		
-		spinner_minutes.addChangeListener(expirationChangeListener);
-		spinner_hours.addChangeListener(expirationChangeListener);
-		spinner_days.addChangeListener(expirationChangeListener);
-		spinner_weeks.addChangeListener(expirationChangeListener);
-		spinner_months.addChangeListener(expirationChangeListener);
-		spinner_years.addChangeListener(expirationChangeListener);
+		expirationTypeTabs.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateExpirationSummaryText();
+			}
+		});
+		
+		JLabel lblUses = new JLabel("Uses");
+		lblUses.setBounds(223, 395, 46, 14);
+		usageBased.add(lblUses);
 		
 		JCheckBox usePasswordCheckBox = new JCheckBox("Require password");
 		usePasswordCheckBox.setSelected(true);
@@ -240,52 +216,6 @@ public class CreateSecretWindow {
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setBounds(10, 287, 409, 14);
 		frmSockergrodaCreate.getContentPane().add(separator_1);
-		
-		rdbtnExpireTypeTime = new JRadioButton("Time-based");
-		rdbtnExpireTypeTime.setBounds(310, 327, 128, 23);
-		rdbtnExpireTypeTime.setSelected(true);
-		frmSockergrodaCreate.getContentPane().add(rdbtnExpireTypeTime);
-		
-		rdbtnExpireTypeUses = new JRadioButton("Usage-based");
-		rdbtnExpireTypeUses.setBounds(310, 369, 128, 23);
-		frmSockergrodaCreate.getContentPane().add(rdbtnExpireTypeUses);
-		
-		ButtonGroup expirationType = new ButtonGroup();
-		
-		expirationType.add(rdbtnExpireTypeTime);
-		expirationType.add(rdbtnExpireTypeUses);
-		
-		rdbtnExpireTypeTime.addChangeListener(expirationChangeListener);
-		rdbtnExpireTypeUses.addChangeListener(expirationChangeListener);
-		
-		ChangeListener expirationTypeChangeListener = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				int whichType = getExpirationType();
-				
-				Component[] timeComponents = panel.getComponents();
-
-				for(int i = 0; i < timeComponents.length; i++) {
-					timeComponents[i].setEnabled(whichType == 0);
-				}
-				
-				spinner_uses.setEnabled(whichType == 1);
-			}
-		};
-		
-		rdbtnExpireTypeTime.addChangeListener(expirationTypeChangeListener);
-		rdbtnExpireTypeUses.addChangeListener(expirationTypeChangeListener);
-		
-		spinner_uses = new JSpinner();
-		spinner_uses.setModel(new SpinnerNumberModel(1, 1, 100, 1));
-		spinner_uses.setBounds(223, 369, 63, 20);
-		frmSockergrodaCreate.getContentPane().add(spinner_uses);
-		
-		spinner_uses.addChangeListener(expirationChangeListener);
-		
-		JLabel lblUses = new JLabel("Uses");
-		lblUses.setBounds(223, 395, 46, 14);
-		frmSockergrodaCreate.getContentPane().add(lblUses);
 		
 		JCheckBox chckbxSaveSecret = new JCheckBox("Save this secret");
 		chckbxSaveSecret.setSelected(StorageManager.getBoolean("save_secrets"));
@@ -310,10 +240,7 @@ public class CreateSecretWindow {
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(textArea.getText().length() > 0) {
-					int option = JOptionPane.showConfirmDialog(frmSockergrodaCreate, "You have started writing a message.\nDo you want to discard it?", "Discard Message?", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-					if(option == 0) {
-						frmSockergrodaCreate.dispose();
-					}
+					frmSockergrodaCreate.getWindowListeners()[0].windowClosing(null);
 				} else {
 					frmSockergrodaCreate.dispose();
 				}
@@ -395,7 +322,9 @@ public class CreateSecretWindow {
 		frmSockergrodaCreate.getContentPane().add(separator_2);
 		
 		lblExpirationSummary = new JLabel();
-		lblExpirationSummary.setBounds(31, 373, 143, 14);
+		lblExpirationSummary.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblExpirationSummary.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblExpirationSummary.setBounds(233, 409, 186, 20);
 		frmSockergrodaCreate.getContentPane().add(lblExpirationSummary);
 		
 		JLabel lblWndTitle = new JLabel("Create a secret");
@@ -404,18 +333,71 @@ public class CreateSecretWindow {
 		lblWndTitle.setBounds(264, 21, 155, 32);
 		frmSockergrodaCreate.getContentPane().add(lblWndTitle);
 		
-		expirationTypeChangeListener.stateChanged(null);
+		JSpinner fontSizeSpinner = new JSpinner();
+		fontSizeSpinner.setToolTipText("Choose a font size (this won't change the appearance of the text for the receiver!)");
+		fontSizeSpinner.setModel(new SpinnerNumberModel(12, 3, 30, 2));
+		fontSizeSpinner.setBounds(243, 72, 48, 20);
+		frmSockergrodaCreate.getContentPane().add(fontSizeSpinner);
+		
+		ChangeListener fontSizeChange = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				textArea.setFont(new Font("Monospaced", Font.BOLD, (int)fontSizeSpinner.getValue()));
+			}
+		};
+		fontSizeSpinner.addChangeListener(fontSizeChange);
+		fontSizeChange.stateChanged(null);
+		
+		JButton btnRandomPassword = new JButton("Generate");
+		btnRandomPassword.setBounds(82, 232, 92, 20);
+		btnRandomPassword.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String generatedPassword = "";
+				String characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+				for(int i = 0; i < 16; i++) {
+					char addChar = characters.charAt((int)Math.floor(Math.random() * characters.length()));
+					if(Character.isLetter(addChar) && Math.floor(Math.random() * 2) == 0) {
+						addChar = Character.toUpperCase(addChar);
+					}
+					generatedPassword += addChar;
+				}
+				passwordField.setText(generatedPassword);
+			}
+		});
+		frmSockergrodaCreate.getContentPane().add(btnRandomPassword);
+		
+		JCheckBox chckbxShowPassword = new JCheckBox("Show password");
+		chckbxShowPassword.setBounds(180, 232, 156, 23);
+		frmSockergrodaCreate.getContentPane().add(chckbxShowPassword);
+		
+		chckbxShowPassword.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if(chckbxShowPassword.isSelected()) {
+					passwordField.setEchoChar((char)0);
+				} else {
+					passwordField.setEchoChar((char)UIManager.get("PasswordField.echoChar"));
+				}
+			}
+		});
+		
 		updateExpirationSummaryText();
 	}
 	
 	private long getTimeExpirationValue() {
-		int minutes = (int)spinner_minutes.getValue();
-		int hours = (int)spinner_hours.getValue();
-		int days = (int)spinner_days.getValue();
-		int weeks = (int)spinner_weeks.getValue();
-		int months = (int)spinner_months.getValue();
-		int years = (int)spinner_years.getValue();
-		return (minutes * 60) + (hours * 60 * 60) + (days * 60 * 60 * 24) + (weeks * 60 * 60 * 24 * 7) + (months * 60 * 60 * 24 * 30) + (years * 60 * 60 * 24 * 365);
+		LocalDate theDate = datePicker.getDatePicker().getDate();
+		LocalTime theTime = datePicker.getTimePicker().getTime();
+		
+		if(theDate == null) {
+			theDate = LocalDate.now();
+		}
+
+		if(theTime == null) {
+			theTime = LocalTime.now();
+		}
+		
+		return LocalDateTime.of(theDate, theTime).toEpochSecond(OffsetDateTime.now().getOffset()) - System.currentTimeMillis() / 1000;
 	}
 	
 	private int getUsesExpirationValue() {
@@ -423,10 +405,16 @@ public class CreateSecretWindow {
 	}
 	
 	private int getExpirationType() {
-		return rdbtnExpireTypeTime.isSelected() ? 0 : 1;
+		return expirationTypeTabs.getSelectedIndex();
 	}
 	
 	private void updateExpirationSummaryText() {
-		lblExpirationSummary.setText("Expires in " + (getExpirationType() == 0 ? TimeStrings.getTimeString(getTimeExpirationValue()) : getUsesExpirationValue() + " uses"));
+		if(getExpirationType() == 0 && getTimeExpirationValue() <= 0) {
+			lblExpirationSummary.setText("Invalid expiration time");
+			lblExpirationSummary.setIcon(new ImageIcon(Images.INCORRECT_16x16.getImage()));
+		} else {
+			lblExpirationSummary.setText("Expires after " + (getExpirationType() == 0 ? TimeStrings.getTimeString(getTimeExpirationValue()) : getUsesExpirationValue() + " use" + (getUsesExpirationValue() != 1 ? "s" : "")));
+			lblExpirationSummary.setIcon(new ImageIcon(getExpirationType() == 0 ? Images.EXPIRATION_16x16.getImage() : Images.ID_16x16.getImage()));
+		}
 	}
 }

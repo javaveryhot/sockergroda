@@ -52,11 +52,6 @@ public class InitWindow {
 	    frmSockergrodaInit.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 	    frmSockergrodaInit.setUndecorated(true);
 	    
-	    JLabel lblBanner = new JLabel();
-	    lblBanner.setIcon(new ImageIcon(Images.INIT_BANNER.getImage()));
-	    lblBanner.setBounds(0, 115, 380, 95);
-	    frmSockergrodaInit.getContentPane().add(lblBanner);
-	    
 	    lblStatus = new JLabel();
 	    lblStatus.setBounds(20, 11, 360, 33);
 	    frmSockergrodaInit.getContentPane().add(lblStatus);
@@ -72,6 +67,11 @@ public class InitWindow {
 	    frmSockergrodaInit.getContentPane().add(panel);
 	    panel.setLayout(null);
 	    
+	    JLabel lblBanner = new JLabel();
+	    lblBanner.setBounds(170, 38, 298, 256);
+	    panel.add(lblBanner);
+	    lblBanner.setIcon(new ImageIcon(Images.ICON_256x256.getImage()));
+	    
 	    setStatus("Please wait", 0);
 	    
 	    frmSockergrodaInit.setVisible(true);
@@ -80,11 +80,6 @@ public class InitWindow {
 	public void setStatus(String text, int progress) {
 		this.lblStatus.setText(text + " ...");
 		this.progressBar.setValue(progress);
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public void dispose() {

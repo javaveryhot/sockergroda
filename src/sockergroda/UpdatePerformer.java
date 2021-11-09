@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -74,7 +75,7 @@ public class UpdatePerformer {
 				this.setOperation("Downloading " + selectedDownloadName, 70);
 
 				try(InputStream in = new URL(selectedDownloadUrl).openStream()) {
-					Path downloadPath = Path.of(System.getProperty("user.dir") + File.separator + selectedDownloadName);
+					Path downloadPath = Paths.get(System.getProperty("user.dir") + File.separator + selectedDownloadName);
 					Files.copy(in, downloadPath);
 					
 					if(this.launchOnFinish) {

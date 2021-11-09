@@ -106,7 +106,6 @@ public class ModeratorDashboardWindow {
 				btnDeny.setEnabled(list.getSelectedIndex() != -1);
 				btnViewContent.setEnabled(list.getSelectedIndex() != -1);
 				btnConfirm.setEnabled(list.getSelectedIndex() != -1);
-				btnRefresh.setEnabled(list.getSelectedIndex() != -1);
 				
 				if(list.getSelectedIndex() != -1) {
 					JSONObject thisReportData = reports.getJSONObject(list.getSelectedIndex());
@@ -232,7 +231,6 @@ public class ModeratorDashboardWindow {
 	    btnRefresh = new JButton("Refresh");
 	    btnRefresh.setMnemonic('R');
 	    btnRefresh.setIcon(new ImageIcon(Images.REFRESH_16x16.getImage()));
-	    btnRefresh.setEnabled(false);
 	    btnRefresh.setBounds(424, 226, 95, 23);
 	    btnRefresh.addActionListener(new ActionListener() {
 			@Override
